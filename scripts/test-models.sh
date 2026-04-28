@@ -160,29 +160,9 @@ EOF
 }
 EOF
 )
-
-    ERROR=$(echo "$RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('error', {}).get('message', ''))" 2>/dev/null || echo "")
-    if [ -n "$ERROR" ]; then
-        echo -e "${RED}  ✗ Failed: $ERROR${NC}"
-        MODEL_RESULT=$(cat <<EOF
-{
-  "model": "$model",
-  "success": false,
-  "error": "$ERROR",
-  "responseTime": null,
-  "tokensGenerated": null,
-  "totalTokens": null,
-  "response": null
-}
-EOF
-)
     else
-        CONTENT=$(echo "$RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('choices', [{}])[0].get('message', {}).get('content', ''))" 2>/dev/null || echo "")
-        TOKENS_GENERATED=$(echo "$RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('usage', {}).get('completion_tokens', 0))" 2>/dev/null || echo "0")
-        TOTAL_TOKENS=$(echo "$RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('usage', {}).get('total_tokens', 0))" 2>/dev/null || echo "0")
-
-        if [ -z "$CONTENT" ]; then
-            ERROR="No content in response"
+        ERROR=$(echo "$RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('error', {}).get('message', ''))" 2>/dev/null || echo "")
+        if [ -n "$ERROR" ]; then
             echo -e "${RED}  ✗ Failed: $ERROR${NC}"
             MODEL_RESULT=$(cat <<EOF
 {
@@ -197,11 +177,31 @@ EOF
 EOF
 )
         else
-            echo -e "${GREEN}  ✓ Success (${RESPONSE_TIME}ms, $TOKENS_GENERATED tokens)${NC}"
+            CONTENT=$(echo "$RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('choices', [{}])[0].get('message', {}).get('content', ''))" 2>/dev/null || echo "")
+            TOKENS_GENERATED=$(echo "$RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('usage', {}).get('completion_tokens', 0))" 2>/dev/null || echo "0")
+            TOTAL_TOKENS=$(echo "$RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('usage', {}).get('total_tokens', 0))" 2>/dev/null || echo "0")
 
-            CONTENT_ESCAPED=$(echo "$CONTENT" | python3 -c "import sys, json; print(json.dumps(sys.stdin.read()))")
+            if [ -z "$CONTENT" ]; then
+                ERROR="No content in response"
+                echo -e "${RED}  ✗ Failed: $ERROR${NC}"
+                MODEL_RESULT=$(cat <<EOF
+{
+  "model": "$model",
+  "success": false,
+  "error": "$ERROR",
+  "responseTime": null,
+  "tokensGenerated": null,
+  "totalTokens": null,
+  "response": null
+}
+EOF
+)
+            else
+                echo -e "${GREEN}  ✓ Success (${RESPONSE_TIME}ms, $TOKENS_GENERATED tokens)${NC}"
 
-            MODEL_RESULT=$(cat <<EOF
+                CONTENT_ESCAPED=$(echo "$CONTENT" | python3 -c "import sys, json; print(json.dumps(sys.stdin.read()))")
+
+                MODEL_RESULT=$(cat <<EOF
 {
   "model": "$model",
   "success": true,
@@ -213,6 +213,7 @@ EOF
 }
 EOF
 )
+            fi
         fi
     fi
 
