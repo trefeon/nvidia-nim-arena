@@ -26,48 +26,28 @@ ALL_MODELS = [
     "deepseek-ai/deepseek-v3.2",
     "z-ai/glm-5.1",
     "z-ai/glm-4.7",
-    "minimax/minimax-m2.7",
-    "minimax/minimax-m2.5",
+    "minimaxai/minimax-m2.7",
+    "minimaxai/minimax-m2.5",
     "nvidia/nemotron-3-super-120b-a12b",
     "nvidia/nemotron-4-340b-instruct",
     "nvidia/llama-3.1-nemotron-ultra-253b-v1",
     "moonshotai/kimi-k2.5",
     "moonshotai/kimi-k2-instruct",
-    "gpt-oss/gpt-oss-120b",
+    "openai/gpt-oss-120b",
     "google/gemma-4-31b-it",
     "qwen/qwen3-coder-480b-a35b-instruct",
     "qwen/qwen2.5-coder-32b-instruct",
     "qwen/qwen3.5-397b-a17b",
     "mistralai/devstral-2-123b-instruct-2512",
     "mistralai/mistral-large-3-675b-instruct-2512",
-    "meta/llama-3.1-405b-instruct",
+    "meta/llama-3_3-70b-instruct",
+    "meta/llama-4-maverick-17b-128e-instruct",
+    "meta/llama-3.2-90b-vision-instruct",
 ]
 
-GROUP1_MODELS = [
-    "deepseek-ai/deepseek-v4-flash",
-    "deepseek-ai/deepseek-v4-pro",
-    "deepseek-ai/deepseek-v3.2",
-    "z-ai/glm-5.1",
-    "z-ai/glm-4.7",
-    "minimax/minimax-m2.7",
-    "minimax/minimax-m2.5",
-    "nvidia/nemotron-3-super-120b-a12b",
-    "nvidia/nemotron-4-340b-instruct",
-    "nvidia/llama-3.1-nemotron-ultra-253b-v1",
-]
+GROUP1_MODELS = ALL_MODELS[:12]
 
-GROUP2_MODELS = [
-    "moonshotai/kimi-k2.5",
-    "moonshotai/kimi-k2-instruct",
-    "gpt-oss/gpt-oss-120b",
-    "google/gemma-4-31b-it",
-    "qwen/qwen3-coder-480b-a35b-instruct",
-    "qwen/qwen2.5-coder-32b-instruct",
-    "qwen/qwen3.5-397b-a17b",
-    "mistralai/devstral-2-123b-instruct-2512",
-    "mistralai/mistral-large-3-675b-instruct-2512",
-    "meta/llama-3.1-405b-instruct",
-]
+GROUP2_MODELS = ALL_MODELS[12:]
 
 
 def selected_models() -> list[str]:
