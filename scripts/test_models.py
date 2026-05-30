@@ -35,6 +35,7 @@ ALL_MODELS = [
     "qwen/qwen2.5-coder-32b-instruct",
     "qwen/qwen3.5-397b-a17b",
     "mistralai/mistral-large-3-675b-instruct-2512",
+    "mistralai/mistral-medium-3.5-128b",
     "meta/llama-3_3-70b-instruct",
     "meta/llama-4-maverick-17b-128e-instruct",
     "meta/llama-3.2-90b-vision-instruct",
