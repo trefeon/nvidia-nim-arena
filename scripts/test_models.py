@@ -355,8 +355,12 @@ def main() -> int:
         print("Error: NIM_API_KEY environment variable not set", file=sys.stderr)
         return 1
 
-    all_available = fetch_dynamic_models()
-    models = selected_models(all_available)
+    if os.getenv("FORCE_STATIC_MODELS") == "1":
+        models = [m for m in ALL_MODELS if m not in load_banned_models()]
+        print(f"Forcing static ALL_MODELS list ({len(models)} models).")
+    else:
+        all_available = fetch_dynamic_models()
+        models = selected_models(all_available)
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     group_label = f" (Group: {MODEL_GROUP})" if MODEL_GROUP else ""
@@ -404,21 +408,22 @@ def main() -> int:
             err_msg = str(result.get("error") or "").lower()
             if "timed out" in err_msg or "timeout" in err_msg:
                 is_timeout = True
-        
+
         resp_time = result.get("responseTime")
         if resp_time is not None and resp_time > 60000:
             is_timeout = True
-            
+
         if is_timeout:
             ban_model(model)
-            print(f"  ✗ Failed: {result.get('error') or 'Timeout (>60s)'}")
+            print(f"  ✗ Failed: {result.get('error') or 'Timeout (>60s)'} — banned")
         elif result.get("success"):
             print(
                 f"  ✓ Success ({result['responseTime']}ms, {result.get('tokensGenerated', 0)} tokens)"
             )
         else:
-            print(f"  ✗ Failed: {result.get('error') or 'Unknown error'}")
-            
+            print(f"  ✗ Failed: {result.get('error') or 'Unknown error'} — banned")
+            ban_model(model)
+
         results.append(result)
         time.sleep(0.5)
 

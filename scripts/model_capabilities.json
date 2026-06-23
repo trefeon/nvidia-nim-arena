@@ -1,0 +1,89 @@
+{
+  "_meta": {
+    "source": "https://build.nvidia.com + https://docs.api.nvidia.com/nim/",
+    "fetched": "2026-06-23",
+    "note": "Specs and tags are sourced from each model's NVIDIA NIM catalog page and API reference."
+  },
+  "categories": {
+    "Coding":            { "icon": "💻", "color": "#22c55e", "description": "Optimized for code generation, completion, and refactoring." },
+    "Reasoning":         { "icon": "🧠", "color": "#a855f7", "description": "Chain-of-thought, math, logic, and multi-step problem solving." },
+    "Agentic":           { "icon": "🤖", "color": "#00c8ff", "description": "Tool use, planning, and function calling." },
+    "Long Context":      { "icon": "📜", "color": "#f59e0b", "description": "Context window of 256K tokens or more." },
+    "Multimodal":        { "icon": "👁️", "color": "#ec4899", "description": "Accepts images, video, or audio in addition to text." },
+    "Chat":              { "icon": "💬", "color": "#76b900", "description": "General chat and instruction following." },
+    "MoE":               { "icon": "🧩", "color": "#3b82f6", "description": "Sparse mixture-of-experts architecture." },
+    "Open Weights":      { "icon": "📦", "color": "#94a3b8", "description": "Model weights publicly downloadable." }
+  },
+  "models": {
+    "deepseek-ai/deepseek-v4-flash": {
+      "description": "284B MoE model with 1M-token context optimized for fast coding and agents.",
+      "params": "284B MoE",
+      "context": "1M",
+      "contextTokens": 1000000,
+      "tags": ["Coding", "Agentic", "Long Context", "MoE", "Chat"]
+    },
+    "nvidia/nemotron-3-super-120b-a12b": {
+      "description": "Open hybrid Mamba-Transformer MoE with 1M context; agentic reasoning, coding, planning, and tool calling.",
+      "params": "120B MoE (12B active)",
+      "context": "1M",
+      "contextTokens": 1000000,
+      "tags": ["Reasoning", "Agentic", "Coding", "Long Context", "MoE", "Chat", "Open Weights"]
+    },
+    "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning": {
+      "description": "Omni-modal reasoning model: images, video, speech, and text.",
+      "params": "30B MoE (3B active)",
+      "context": "256K",
+      "contextTokens": 262144,
+      "tags": ["Reasoning", "Multimodal", "MoE", "Open Weights"]
+    },
+    "moonshotai/kimi-k2.6": {
+      "description": "1T multimodal MoE for long-horizon coding, agentic tool use, and image/video understanding.",
+      "params": "1T MoE",
+      "context": "256K",
+      "contextTokens": 262144,
+      "tags": ["Coding", "Agentic", "Multimodal", "Long Context", "MoE", "Chat"]
+    },
+    "openai/gpt-oss-120b": {
+      "description": "Text-only MoE reasoning LLM designed to fit on a single 80GB GPU.",
+      "params": "120B MoE",
+      "context": "128K",
+      "contextTokens": 131072,
+      "tags": ["Reasoning", "MoE", "Open Weights"]
+    },
+    "mistralai/mistral-large-3-675b-instruct-2512": {
+      "description": "State-of-the-art MoE vision-language model for chat, agentic, and instruction-based use cases.",
+      "params": "675B MoE",
+      "context": "256K",
+      "contextTokens": 262144,
+      "tags": ["Multimodal", "Agentic", "Chat", "MoE", "Long Context"]
+    },
+    "mistralai/mistral-medium-3.5-128b": {
+      "description": "High-performing text model for generation, coding, and agentic use cases.",
+      "params": "128B",
+      "context": "256K",
+      "contextTokens": 262144,
+      "tags": ["Coding", "Agentic", "Reasoning", "Long Context"]
+    },
+    "meta/llama-4-maverick-17b-128e-instruct": {
+      "description": "General-purpose multimodal multilingual MoE with 17B params across 128 experts.",
+      "params": "17B (128 experts) MoE",
+      "context": "1M",
+      "contextTokens": 1000000,
+      "tags": ["Multimodal", "Chat", "MoE", "Long Context", "Open Weights"]
+    },
+    "meta/llama-3.2-90b-vision-instruct": {
+      "description": "Vision-language model excelling at high-quality reasoning from images.",
+      "params": "90B",
+      "context": "128K",
+      "contextTokens": 131072,
+      "tags": ["Multimodal", "Open Weights"]
+    },
+    "stepfun-ai/step-3.5-flash": {
+      "description": "200B open-source reasoning engine with sparse MoE for frontier agentic AI.",
+      "params": "200B MoE",
+      "context": "256K",
+      "contextTokens": 262144,
+      "tags": ["Agentic", "Coding", "Reasoning", "MoE", "Long Context", "Open Weights"]
+    }
+  }
+}

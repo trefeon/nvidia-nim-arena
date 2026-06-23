@@ -1,49 +1,31 @@
-<div align="center">
+# NIM Arena
 
-[![NIMStats Banner](https://capsule-render.vercel.app/api?type=waving&color=76b900&height=220&section=header&text=NIMStats&fontSize=90&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Real-Time%20NVIDIA%20NIM%20Benchmark%20Dashboard&descSize=22&descAlignY=60&descAlign=50)](https://trefeon.github.io/NIM_List/)
+> **Where NVIDIA NIM models battle for the leaderboard.**
+> Community-driven benchmarking of 20 NVIDIA NIM models — fully automated, zero infra cost, self-hostable in minutes.
 
-[![CI](https://github.com/trefeon/NIM_List/actions/workflows/benchmark.yml/badge.svg)](https://github.com/trefeon/NIM_List/actions)
-[![Live Dashboard](https://img.shields.io/badge/🌐%20live-trefeon.github.io/NIM__List-76b900?style=flat-square)](https://trefeon.github.io/NIM_List/)
-[![Models](https://img.shields.io/badge/models-20-blue?style=flat-square)](https://build.nvidia.com/models)
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow?style=flat-square)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)](https://github.com/trefeon/NIM_List/pulls)
-[![Stars](https://img.shields.io/github/stars/trefeon/NIM_List?style=flat-square&color=gold)](https://github.com/trefeon/NIM_List/stargazers)
-
-<br/>
-
-> **Community-driven benchmarking of 20 NVIDIA NIM models — fully automated, zero infra cost, self-hostable in minutes.**
-
-<br/>
-
-**[🚀 View Live Dashboard](https://trefeon.github.io/NIM_List/) · [📖 Docs](#-quick-start) · [🤝 Contribute](#-contributing) · [💬 Discussions](https://github.com/trefeon/NIM_List/discussions)**
-
-</div>
+**Live Dashboard:** [trefeon.github.io/nvidia-nim-arena](https://trefeon.github.io/nvidia-nim-arena/) · **CI:** [Actions](https://github.com/trefeon/nvidia-nim-arena/actions) · **Models:** [build.nvidia.com](https://build.nvidia.com/models) · **License:** MIT · **PRs welcome**
 
 ---
 
-## ✨ What is NIMStats?
+## What is NIM Arena?
 
-NIMStats automatically benchmarks **20 NVIDIA NIM models** every hour using GitHub Actions and publishes the results to a beautiful, interactive dashboard. No servers, no subscriptions — just fork, add your API key, and go.
+NIM Arena automatically benchmarks **20 NVIDIA NIM models** every hour using GitHub Actions and publishes the results to a beautiful, interactive dashboard. No servers, no subscriptions — just fork, add your API key, and go.
 
-<div align="center">
-
-| 🏎️ Hourly Benchmarks | 📊 Interactive Charts | 🔁 Zero Infrastructure | 🌍 Fully Open-Source |
+| Hourly Benchmarks | Interactive Charts | Zero Infrastructure | Fully Open-Source |
 |:---:|:---:|:---:|:---:|
 | Automatic via GitHub Actions | Response time, throughput & trends | Static site + free CI/CD | Fork and self-host in minutes |
 
-</div>
-
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 > Get your own benchmarking dashboard running in under 5 minutes.
 
 ### 1. Fork & Clone
 
 ```bash
-git clone https://github.com/trefeon/NIM_List.git
-cd NIM_List
+git clone https://github.com/trefeon/nvidia-nim-arena.git
+cd nvidia-nim-arena
 ```
 
 ### 2. Get a Free API Key
@@ -70,27 +52,24 @@ In your forked repo: **Settings → Secrets and variables → Actions → New re
 
 **Actions → Benchmark NVIDIA NIM Models → Run workflow**
 
-That's it — your dashboard auto-refreshes every hour. ✨
+That's it — your dashboard auto-refreshes every hour.
 
 ---
 
-## 📊 Dashboard Features
-
-<div align="center">
+## Dashboard Features
 
 | Tab | What you get |
 |-----|-------------|
-| **📊 Overview** | 5 animated KPI cards · success trend charts · top-10 speed & throughput bars · model reliability pills |
-| **🏆 Leaderboard** | Composite score rankings · sortable columns · SVG sparklines · trend indicators (↑↓→) · provider chips |
-| **🔬 Explorer** | Per-model deep dive · response time history chart · error breakdown donut · availability heatmap |
-| **⏱ Timeline** | Filterable run history (All / 24h / 48h / 7d) · expandable run cards with full per-model detail |
-| **⚔️ Compare** | Head-to-head overlay chart · win-rate stats · side-by-side metric comparison |
-
-</div>
+| **Overview** | 5 animated KPI cards · success trend charts · top-10 speed & throughput bars · model reliability pills |
+| **Leaderboard** | Composite score rankings · sortable columns · SVG sparklines · trend indicators (↑↓→) · provider chips |
+| **Explorer** | Per-model deep dive · response time history chart · error breakdown donut · availability heatmap |
+| **Timeline** | Filterable run history (All / 24h / 48h / 7d) · expandable run cards with full per-model detail |
+| **Compare** | Head-to-head overlay chart · win-rate stats · side-by-side metric comparison |
+| **Categories** | Models grouped by capability (Coding, Reasoning, Agentic, Multimodal, Long Context, MoE, Open Weights) |
 
 ---
 
-## 🤖 Benchmarked Models
+## Benchmarked Models
 
 <details>
 <summary><b>20 models across 11 providers — click to expand</b></summary>
@@ -129,7 +108,7 @@ That's it — your dashboard auto-refreshes every hour. ✨
 
 ---
 
-## 🏗️ How It Works
+## How It Works
 
 ```
 ┌──────────────────── GitHub Actions (every hour) ──────────────────────┐
@@ -143,18 +122,18 @@ That's it — your dashboard auto-refreshes every hour. ✨
 │                    │  Merge + commit │  → history.db updated in repo         │
 │                    └─────────────────┘                                       │
 └───────────────────────────────────────────────────────────────────────────── ┘
-                                     │
-                          ┌──────────▼──────────┐
-                          │  Static Dashboard   │  rebuilds on each push
-                          │  (Pages / Netlify)  │
-                          └─────────────────────┘
+                                      │
+                           ┌──────────▼──────────┐
+                           │  Static Dashboard   │  rebuilds on each push
+                           │  (Pages / Netlify)  │
+                           └─────────────────────┘
 ```
 
-**Parallel jobs = ~50% faster benchmarks** ⚡
+**Parallel jobs = ~50% faster benchmarks**
 
 ---
 
-## 🛠️ Customization
+## Customization
 
 <details>
 <summary><b>Change the benchmark prompt</b></summary>
@@ -202,7 +181,7 @@ python3 scripts/test_models.py
 
 ---
 
-## 📦 Data Storage
+## Data Storage
 
 `history.db` is a SQLite database persisted in the repo — the single source of truth. The browser loads it via [sql.js](https://sql.js.org/) (WebAssembly) and queries it entirely client-side. `scripts/results.json` is a temporary per-job artifact that is never committed.
 
@@ -217,7 +196,7 @@ model_results (run_id, model, success, error, response_time, tokens_generated, t
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are what make the open-source community amazing. Any contribution you make is **greatly appreciated**!
 
@@ -228,35 +207,29 @@ Contributions are what make the open-source community amazing. Any contribution 
 5. Open a **Pull Request**
 
 **Ideas for contributions:**
-- 🆕 Add new NIM models to the benchmark list
-- 📊 New chart types or dashboard widgets
-- 🌐 Internationalization / translations
-- 🐛 Bug fixes and performance improvements
-- 📖 Improve documentation
+- Add new NIM models to the benchmark list
+- New chart types or dashboard widgets
+- Internationalization / translations
+- Bug fixes and performance improvements
+- Improve documentation
 
-Please read through open [Issues](https://github.com/trefeon/NIM_List/issues) before starting — someone might already be working on it!
+Please read through open [Issues](https://github.com/trefeon/nvidia-nim-arena/issues) before starting — someone might already be working on it!
 
 ---
 
-## 🔗 Resources
+## Resources
 
 - [NVIDIA NIM API Documentation](https://docs.api.nvidia.com/nim/)
 - [NVIDIA Model Catalog](https://build.nvidia.com/models)
-- [GitHub Actions Docs](https://docs.github.com/en/actions)
+- [GitHub Actions Docs](https://github.com/trefeon/nvidia-nim-arena/actions)
 - [sql.js — SQLite in the browser](https://sql.js.org/)
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
 
 ---
 
-<div align="center">
-
-Made with ❤️ for the ML community · [⭐ Star this repo](https://github.com/trefeon/NIM_List) if you find it useful!
-
-[![footer](https://capsule-render.vercel.app/api?type=waving&color=76b900&height=100&section=footer)](https://trefeon.github.io/NIM_List/)
-
-</div>
+Made for the ML community. Star this repo if you find it useful.
