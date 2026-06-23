@@ -1,235 +1,76 @@
 # NIM Arena
 
 > **Where NVIDIA NIM models battle for the leaderboard.**
-> Community-driven benchmarking of 20 NVIDIA NIM models — fully automated, zero infra cost, self-hostable in minutes.
+> Community-driven benchmarking — fully automated, zero infra, self-hostable in minutes.
 
-**Live Dashboard:** [trefeon.github.io/nvidia-nim-arena](https://trefeon.github.io/nvidia-nim-arena/) · **CI:** [Actions](https://github.com/trefeon/nvidia-nim-arena/actions) · **Models:** [build.nvidia.com](https://build.nvidia.com/models) · **License:** MIT · **PRs welcome**
-
----
-
-## What is NIM Arena?
-
-NIM Arena automatically benchmarks **20 NVIDIA NIM models** every hour using GitHub Actions and publishes the results to a beautiful, interactive dashboard. No servers, no subscriptions — just fork, add your API key, and go.
-
-| Hourly Benchmarks | Interactive Charts | Zero Infrastructure | Fully Open-Source |
-|:---:|:---:|:---:|:---:|
-| Automatic via GitHub Actions | Response time, throughput & trends | Static site + free CI/CD | Fork and self-host in minutes |
+<p>
+  <a href="https://trefeon.github.io/nvidia-nim-arena/">Live Dashboard</a> ·
+  <a href="https://github.com/trefeon/nvidia-nim-arena/actions">CI</a> ·
+  <a href="https://build.nvidia.com/models">Models</a> ·
+  MIT ·
+  <a href="https://github.com/trefeon/nvidia-nim-arena/pulls">PRs welcome</a>
+</p>
 
 ---
 
 ## Quick Start
-
-> Get your own benchmarking dashboard running in under 5 minutes.
-
-### 1. Fork & Clone
 
 ```bash
 git clone https://github.com/trefeon/nvidia-nim-arena.git
 cd nvidia-nim-arena
 ```
 
-### 2. Get a Free API Key
-
-Visit **[build.nvidia.com](https://build.nvidia.com)** → Create a free account → Copy your API key.
-
-### 3. Add the Secret
-
-In your forked repo: **Settings → Secrets and variables → Actions → New repository secret**
-
-| Name | Value |
-|------|-------|
-| `NIM_API_KEY` | Your NVIDIA NIM API key |
-
-### 4. Deploy the Dashboard
-
-| Platform | Steps |
-|----------|-------|
-| **Cloudflare Pages** | Connect repo in [Cloudflare Pages](https://pages.cloudflare.com/) |
-| **GitHub Pages** | Settings → Pages → Deploy from `main` |
-| **Netlify / Vercel** | Connect repo for instant auto-deploy |
-
-### 5. Run Your First Benchmark
-
-**Actions → Benchmark NVIDIA NIM Models → Run workflow**
-
-That's it — your dashboard auto-refreshes every hour.
+1. Get a free key at **[build.nvidia.com](https://build.nvidia.com)**
+2. Add it as `NIM_API_KEY` in **Settings → Secrets → Actions**
+3. **Actions → Benchmark NVIDIA NIM Models → Run workflow**
+4. Deploy the dashboard — Cloudflare Pages, GitHub Pages, or Netlify
 
 ---
 
-## Dashboard Features
+## What It Does
 
-| Tab | What you get |
-|-----|-------------|
-| **Overview** | 5 animated KPI cards · success trend charts · top-10 speed & throughput bars · model reliability pills |
-| **Leaderboard** | Composite score rankings · sortable columns · SVG sparklines · trend indicators (↑↓→) · provider chips |
-| **Explorer** | Per-model deep dive · response time history chart · error breakdown donut · availability heatmap |
-| **Timeline** | Filterable run history (All / 24h / 48h / 7d) · expandable run cards with full per-model detail |
-| **Compare** | Head-to-head overlay chart · win-rate stats · side-by-side metric comparison |
-| **Categories** | Models grouped by capability (Coding, Reasoning, Agentic, Multimodal, Long Context, MoE, Open Weights) |
+| | |
+|---|---|
+| **Speed benchmark** | Tests all models hourly with a coding prompt, measures response time & throughput |
+| **Capability probe** | Scans models for chat, tools, vision, reasoning, and context window limits |
+| **Agent benchmark** | Runs a 4-task golden dataset (extraction, logic, coding, tool use) graded by an LLM judge |
+| **Interactive dashboard** | Full SQLite-backed frontend — tabs for overview, leaderboard, explorer, timeline, compare, categories |
 
----
-
-## Benchmarked Models
-
-<details>
-<summary><b>20 models across 11 providers — click to expand</b></summary>
-
-<br/>
-
-| Provider | Model | Highlight |
-|----------|-------|-----------|
-| **DeepSeek** | `deepseek-ai/deepseek-v4-flash` | Fast MoE, optimized for speed |
-| **DeepSeek** | `deepseek-ai/deepseek-v4-pro` | Professional-grade reasoning |
-| **DeepSeek** | `deepseek-ai/deepseek-v3.2` | Latest with improved reasoning |
-| **Z-AI** | `z-ai/glm-5.1` | Superior code understanding |
-| **Z-AI** | `z-ai/glm-4.7` | Strong mathematical capabilities |
-| **MiniMax** | `minimaxai/minimax-m2.7` | Efficient inference model |
-| **MiniMax** | `minimaxai/minimax-m2.5` | Previous generation MiniMax |
-| **NVIDIA** | `nvidia/nemotron-3-super-120b-a12b` | NVIDIA's 120B flagship |
-| **NVIDIA** | `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning` | Compact omni reasoning model |
-| **Moonshot** | `moonshotai/kimi-k2.6` | Context-optimized model |
-| **Moonshot** | `moonshotai/kimi-k2-instruct` | Instruction-tuned Kimi |
-| **OpenAI** | `openai/gpt-oss-120b` | Open-source 120B |
-| **Google** | `google/gemma-4-31b-it` | Lightweight edge inference |
-| **Qwen** | `qwen/qwen3-coder-480b-a35b-instruct` | Specialized coding (480B MoE) |
-| **Qwen** | `qwen/qwen2.5-coder-32b-instruct` | Lightweight Qwen coder |
-| **Qwen** | `qwen/qwen3.5-397b-a17b` | Flagship Qwen (397B) |
-| **Qwen** | `qwen/qwen3.5-122b-a10b` | Mid-range Qwen 3.5 MoE |
-| **Mistral** | `mistralai/devstral-2-123b-instruct-2512` | Developer-focused (123B) |
-| **Mistral** | `mistralai/mistral-large-3-675b-instruct-2512` | Largest Mistral (675B) |
-| **Mistral** | `mistralai/mistral-medium-3.5-128b` | Efficient medium-scale Mistral |
-| **Meta** | `meta/llama-3_3-70b-instruct` | Llama 3.3 70B |
-| **Meta** | `meta/llama-4-maverick-17b-128e-instruct` | Llama 4 Maverick (128 experts) |
-| **Meta** | `meta/llama-3.2-90b-vision-instruct` | Multimodal 90B vision model |
-| **StepFun** | `stepfun-ai/step-3.5-flash` | Ultra-fast flash model |
-| **StepFun** | `stepfun-ai/step-3.7-flash` | Latest high-performance flash |
-
-</details>
-
----
-
-## How It Works
+### Pipeline
 
 ```
-┌──────────────────── GitHub Actions (every hour) ──────────────────────┐
-│                                                                               │
-│   ┌─────────────────────┐        ┌─────────────────────┐                    │
-│   │  Job 1 — Group A    │        │  Job 2 — Group B    │  (run in parallel) │
-│   │  10 NIM models      │        │  10 NIM models      │                    │
-│   └──────────┬──────────┘        └──────────┬──────────┘                    │
-│              └──────────────┬───────────────┘                               │
-│                    ┌────────▼────────┐                                       │
-│                    │  Merge + commit │  → history.db updated in repo         │
-│                    └─────────────────┘                                       │
-└───────────────────────────────────────────────────────────────────────────── ┘
-                                      │
-                           ┌──────────▼──────────┐
-                           │  Static Dashboard   │  rebuilds on each push
-                           │  (Pages / Netlify)  │
-                           └─────────────────────┘
+fetch models → test speed/uptime → probe capabilities → agent benchmark → grade → dashboard
 ```
 
-**Parallel jobs = ~50% faster benchmarks**
+---
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/test_models.py` | Hourly speed & uptime benchmark, writes to `history.db` |
+| `scripts/capability_probe.py` | Deep probe — context limits, tool/vision/reasoning detection |
+| `scripts/agent_benchmark.py` | Golden-dataset benchmark + LLM judge grading |
+| `scripts/merge_results.py` | Merges parallel CI group runs into `history.db` |
+| `scripts/db_utils.py` | Shared SQLite read/write helpers |
+
+---
+
+## Models
+
+20 models across 11 providers — DeepSeek, Z-AI, MiniMax, NVIDIA, Moonshot, OpenAI, Google, Qwen, Mistral, Meta, StepFun.
 
 ---
 
 ## Customization
 
-<details>
-<summary><b>Change the benchmark prompt</b></summary>
-
-Edit `PROMPT` in `scripts/test_models.py`:
-```python
-PROMPT = "Your custom prompt here"
-```
-</details>
-
-<details>
-<summary><b>Add or remove models</b></summary>
-
-Edit `ALL_MODELS` in `scripts/test_models.py`:
-```python
-ALL_MODELS = [
-    "your/custom-model",
-    # ...
-]
-```
-</details>
-
-<details>
-<summary><b>Change the schedule</b></summary>
-
-Edit `.github/workflows/benchmark.yml`:
-```yaml
-- cron: '0 */6 * * *'  # Every 6 hours instead of every hour
-```
-</details>
-
-<details>
-<summary><b>Run locally</b></summary>
-
-```bash
-# Serve the dashboard
-python3 -m http.server 8000
-# Open http://localhost:8000
-
-# Run benchmarks manually (requires NIM_API_KEY env var)
-export NIM_API_KEY=your_key_here
-python3 scripts/test_models.py
-```
-</details>
-
----
-
-## Data Storage
-
-`history.db` is a SQLite database persisted in the repo — the single source of truth. The browser loads it via [sql.js](https://sql.js.org/) (WebAssembly) and queries it entirely client-side. `scripts/results.json` is a temporary per-job artifact that is never committed.
-
-**Schema:**
-
-```sql
-runs          (id, timestamp, prompt, success_count, total_models, fastest_model, fastest_time)
-model_results (run_id, model, success, error, response_time, tokens_generated, total_tokens, response)
-```
-
-**Benchmark parameters:** `temperature: 0.7` · `top_p: 0.9` · `max_tokens: 500` · OpenAI-compatible API
-
----
-
-## Contributing
-
-Contributions are what make the open-source community amazing. Any contribution you make is **greatly appreciated**!
-
-1. **Fork** the repository
-2. Create your feature branch: `git checkout -b feat/amazing-feature`
-3. Commit your changes: `git commit -m 'feat: add amazing feature'`
-4. Push to the branch: `git push origin feat/amazing-feature`
-5. Open a **Pull Request**
-
-**Ideas for contributions:**
-- Add new NIM models to the benchmark list
-- New chart types or dashboard widgets
-- Internationalization / translations
-- Bug fixes and performance improvements
-- Improve documentation
-
-Please read through open [Issues](https://github.com/trefeon/nvidia-nim-arena/issues) before starting — someone might already be working on it!
-
----
-
-## Resources
-
-- [NVIDIA NIM API Documentation](https://docs.api.nvidia.com/nim/)
-- [NVIDIA Model Catalog](https://build.nvidia.com/models)
-- [GitHub Actions Docs](https://github.com/trefeon/nvidia-nim-arena/actions)
-- [sql.js — SQLite in the browser](https://sql.js.org/)
+- **Prompt** — edit `PROMPT` in `scripts/test_models.py`
+- **Models** — edit `ALL_MODELS` in `scripts/test_models.py`
+- **Schedule** — edit `.github/workflows/benchmark.yml`
+- **Run locally** — `export NIM_API_KEY=... && python scripts/test_models.py`
 
 ---
 
 ## License
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.
-
----
-
-Made for the ML community. Star this repo if you find it useful.
+MIT
