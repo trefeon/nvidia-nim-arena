@@ -23,7 +23,8 @@ if env_path.exists():
         env_line = env_line.strip()
         if env_line and not env_line.startswith("#") and "=" in env_line:
             env_k, env_v = env_line.split("=", 1)
-            os.environ.setdefault(env_k.strip(), env_v.strip())
+            val = env_v.strip().strip("'\"")
+            os.environ.setdefault(env_k.strip(), val)
 
 API_BASE = os.getenv("API_BASE", "https://integrate.api.nvidia.com/v1")
 API_KEY = os.getenv("NIM_API_KEY", "")
