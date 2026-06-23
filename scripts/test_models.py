@@ -216,6 +216,20 @@ def to_int(value: Any) -> int:
 
 
 def call_model(model: str, prompt: str, api_key: str) -> dict[str, Any]:
+    if os.getenv("MOCK_BENCHMARK") == "1":
+        import random
+        response_time = random.randint(150, 1500)
+        tokens_generated = random.randint(50, 450)
+        total_tokens = tokens_generated + len(prompt.split())
+        return {
+            "model": model,
+            "success": True,
+            "responseTime": response_time,
+            "tokensGenerated": tokens_generated,
+            "totalTokens": total_tokens,
+            "response": "def is_prime(n):\n    if n < 2: return False\n    for i in range(2, int(n**0.5)+1):\n        if n % i == 0: return False\n    return True",
+            "error": None,
+        }
     payload = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
@@ -425,7 +439,8 @@ def main() -> int:
             ban_model(model)
 
         results.append(result)
-        time.sleep(0.5)
+        if os.getenv("MOCK_BENCHMARK") != "1":
+            time.sleep(0.5)
 
     print()
     print("Compiling results...")
