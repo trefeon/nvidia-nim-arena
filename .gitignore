@@ -34,3 +34,13 @@ scripts/results*.json
 # Python
 __pycache__/
 *.pyc
+
+# Scratch / experimental (archived exploratory work)
+nvidia-nim-api-scratch/
+!.env
+!.gitignore
+
+# Generated benchmark artifacts
+scripts/capability_matrix.json
+scripts/benchmark_outputs.json
+scripts/benchmark_rankings.csv
