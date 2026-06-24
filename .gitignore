@@ -36,7 +36,7 @@ __pycache__/
 *.pyc
 
 # Scratch / experimental (archived exploratory work)
-nvidia-nim-api-scratch/
+scratch/
 !.gitignore
 
 # Generated benchmark artifacts

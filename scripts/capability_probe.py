@@ -25,7 +25,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 API_BASE = os.getenv("API_BASE", "https://integrate.api.nvidia.com/v1")
 SCRIPT_DIR = Path(__file__).resolve().parent
-OUTPUT_FILE = SCRIPT_DIR / "model_capabilities.json"
+OUTPUT_FILE = SCRIPT_DIR.parent / "data" / "model_capabilities.json"
 
 
 def get_api_keys() -> list[str]:
@@ -213,12 +213,11 @@ async def probe_model(model_id: str, semaphore: asyncio.Semaphore):
 
 
 async def main():
-    banned_models = set()
-    banned_path = SCRIPT_DIR / "banned_models.txt"
+    banned_path = SCRIPT_DIR.parent / "data" / "banned_models.txt"
     if banned_path.exists():
         banned_models = {l.strip() for l in banned_path.read_text().splitlines() if l.strip()}
 
-    model_list_path = SCRIPT_DIR / "model_capabilities.json"
+    model_list_path = SCRIPT_DIR.parent / "data" / "model_capabilities.json"
     if not model_list_path.exists():
         logger.error(f"{model_list_path} not found. Run test_models.py first or provide a model list.")
         return

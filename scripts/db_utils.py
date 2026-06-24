@@ -30,12 +30,18 @@ def init_schema(conn: sqlite3.Connection) -> None:
             response_time    INTEGER,
             tokens_generated INTEGER,
             total_tokens     INTEGER,
-            response         TEXT
+            response         TEXT,
+            unreliable       INTEGER NOT NULL DEFAULT 0
         );
         CREATE INDEX IF NOT EXISTS idx_mr_run   ON model_results(run_id);
         CREATE INDEX IF NOT EXISTS idx_mr_model ON model_results(model);
         CREATE INDEX IF NOT EXISTS idx_runs_ts  ON runs(timestamp);
     """)
+    # Migration: add column to existing tables if missing
+    try:
+        conn.execute("ALTER TABLE model_results ADD COLUMN unreliable INTEGER NOT NULL DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
 
 
 def write_run(run: dict[str, Any], db_path: Path = HISTORY_DB) -> None:
@@ -59,8 +65,8 @@ def write_run(run: dict[str, Any], db_path: Path = HISTORY_DB) -> None:
         run_id = cur.lastrowid
         conn.executemany(
             """INSERT INTO model_results
-               (run_id, model, success, error, response_time, tokens_generated, total_tokens, response)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+               (run_id, model, success, error, response_time, tokens_generated, total_tokens, response, unreliable)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             [
                 (
                     run_id,
@@ -71,6 +77,7 @@ def write_run(run: dict[str, Any], db_path: Path = HISTORY_DB) -> None:
                     m.get("tokensGenerated"),
                     m.get("totalTokens"),
                     m.get("response"),
+                    1 if m.get("unreliable") else 0,
                 )
                 for m in run.get("models", [])
             ],

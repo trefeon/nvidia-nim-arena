@@ -4,6 +4,8 @@ import json
 import os
 import sys
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -29,12 +31,12 @@ if env_path.exists():
 API_BASE = os.getenv("API_BASE", "https://integrate.api.nvidia.com/v1")
 API_KEY = os.getenv("NIM_API_KEY", "")
 MODEL_GROUP = os.getenv("MODEL_GROUP", "all")
-REQUEST_TIMEOUT_SECONDS = int(os.getenv("REQUEST_TIMEOUT_SECONDS", "60"))
+REQUEST_TIMEOUT_SECONDS = int(os.getenv("REQUEST_TIMEOUT_SECONDS", "300"))
 PROMPT = "Write a Python function that checks if a number is prime and returns True or False"
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 OUTPUT_FILE = SCRIPT_DIR / "results.json"
-BANNED_MODELS_FILE = SCRIPT_DIR / "banned_models.txt"
+BANNED_MODELS_FILE = SCRIPT_DIR.parent / "data" / "banned_models.txt"
 
 ALL_MODELS = [
     "deepseek-ai/deepseek-v4-flash",
@@ -74,18 +76,22 @@ def load_banned_models() -> set[str]:
     return set()
 
 
+ban_lock = threading.Lock()
+
+
 def ban_model(model: str) -> None:
     """Add a model to the permanent banned list."""
-    banned = load_banned_models()
-    if model not in banned:
-        banned.add(model)
-        try:
-            BANNED_MODELS_FILE.write_text(
-                "\n".join(sorted(list(banned))) + "\n", encoding="utf-8"
-            )
-            print(f"Model permanently banned (no response under 1 minute): {model}")
-        except Exception as exc:
-            print(f"Error: Failed to save banned model {model}: {exc}", file=sys.stderr)
+    with ban_lock:
+        banned = load_banned_models()
+        if model not in banned:
+            banned.add(model)
+            try:
+                BANNED_MODELS_FILE.write_text(
+                    "\n".join(sorted(list(banned))) + "\n", encoding="utf-8"
+                )
+                print(f"Model permanently banned (no response under 5 minutes): {model}")
+            except Exception as exc:
+                print(f"Error: Failed to save banned model {model}: {exc}", file=sys.stderr)
 
 
 def get_available_keys() -> list[str]:
@@ -390,14 +396,11 @@ def main() -> int:
 
     print(f"Loaded {len(available_keys)} API keys for rotation.")
 
-    key_idx = 0
-    results: list[dict[str, Any]] = []
-    for model in models:
-        print(f"Testing: {model}")
-        
+    def test_single_model(model: str, start_key_idx: int) -> dict[str, Any]:
         attempts = 0
         max_attempts = len(available_keys)
         result = None
+        key_idx = start_key_idx
         
         while attempts < max_attempts:
             current_key = available_keys[key_idx]
@@ -410,37 +413,53 @@ def main() -> int:
             if is_rate_limited:
                 key_idx = (key_idx + 1) % len(available_keys)
                 attempts += 1
-                print(f"  Rate limited! Rotating to key {key_idx + 1}/{len(available_keys)} and retrying...")
                 time.sleep(1)
                 continue
             else:
                 break
 
-        # Check if the model failed to respond under 1 minute
+        # Check if the model failed to respond or is unreliable
         is_timeout = False
+        is_unreliable = False
+        resp_time = result.get("responseTime")
+
         if not result.get("success"):
             err_msg = str(result.get("error") or "").lower()
             if "timed out" in err_msg or "timeout" in err_msg:
                 is_timeout = True
+        elif resp_time is not None:
+            if resp_time > 300000:
+                is_timeout = True
+            elif resp_time > 60000:
+                is_unreliable = True
 
-        resp_time = result.get("responseTime")
-        if resp_time is not None and resp_time > 60000:
-            is_timeout = True
+        result["unreliable"] = is_unreliable
 
         if is_timeout:
             ban_model(model)
-            print(f"  ✗ Failed: {result.get('error') or 'Timeout (>60s)'} — banned")
+            print(f"  ✗ Failed {model}: {result.get('error') or 'Timeout (>5m)'} — banned")
         elif result.get("success"):
+            unreliable_str = " [UNRELIABLE]" if is_unreliable else ""
             print(
-                f"  ✓ Success ({result['responseTime']}ms, {result.get('tokensGenerated', 0)} tokens)"
+                f"  ✓ Success {model} ({result['responseTime']}ms, {result.get('tokensGenerated', 0)} tokens){unreliable_str}"
             )
         else:
-            print(f"  ✗ Failed: {result.get('error') or 'Unknown error'} — banned")
+            print(f"  ✗ Failed {model}: {result.get('error') or 'Unknown error'} — banned")
             ban_model(model)
 
-        results.append(result)
-        if os.getenv("MOCK_BENCHMARK") != "1":
-            time.sleep(0.5)
+        return result
+
+    results: list[dict[str, Any]] = []
+    max_workers = min(15, len(models))
+    print(f"Running benchmarks concurrently using {max_workers} worker threads...")
+    
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [
+            executor.submit(test_single_model, model, (i % len(available_keys)))
+            for i, model in enumerate(models)
+        ]
+        for fut in futures:
+            results.append(fut.result())
 
     print()
     print("Compiling results...")
