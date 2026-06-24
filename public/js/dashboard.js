@@ -776,6 +776,38 @@ function renderExplorer() {
     <div class="stat-card"><div class="stat-val" style="color:var(--blue)">${s.avgTps ? s.avgTps.toFixed(1)+' t/s' : '—'}</div><div class="stat-label">Avg Throughput</div></div>
   `;
 
+  // Model specs from capabilities
+  const capModel = state.capabilities?.models?.[model];
+  const specBody = document.getElementById('model-specs-body');
+  if (capModel) {
+    const scoreRows = capModel.scores ? Object.entries(capModel.scores).map(([k, v]) => {
+      const label = k === 'elo' ? 'ELO' : k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const val = k === 'elo' ? Math.round(v) : (v * 100).toFixed(1) + '%';
+      const chipColor = k === 'elo' ? (v >= 1400 ? '#22c55e' : v >= 1300 ? '#f59e0b' : '#ef4444') : (v >= 0.8 ? '#22c55e' : v >= 0.6 ? '#f59e0b' : '#ef4444');
+      return `<span class="score-chip" style="background:${chipColor}18;color:${chipColor};border:1px solid ${chipColor}44" title="${label}">${label}: ${val}</span>`;
+    }).join('') : '';
+
+    const modalityChips = (capModel.modalities || []).map(m => {
+      const mColors = {text: '#3b82f6', code: '#22c55e', image: '#ec4899', video: '#a855f7', audio: '#f59e0b'};
+      const c = mColors[m] || '#666688';
+      return `<span class="score-chip" style="background:${c}18;color:${c};border:1px solid ${c}44">${m}</span>`;
+    }).join('');
+
+    specBody.innerHTML = `
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:4px 20px;margin-bottom:12px">
+        <span style="color:var(--text-dim)">Parameters</span><span>${escHtml(capModel.params || '—')}</span>
+        <span style="color:var(--text-dim)">Context</span><span>${escHtml(capModel.context || '—')}</span>
+        <span style="color:var(--text-dim)">Max Output</span><span>${escHtml(capModel.max_output || '—')}</span>
+      </div>
+      ${modalityChips ? `<div style="margin-bottom:10px"><span style="color:var(--text-dim);margin-right:8px">Modalities:</span>${modalityChips}</div>` : ''}
+      ${scoreRows ? `<div><span style="color:var(--text-dim);margin-right:8px">Benchmarks:</span>${scoreRows}</div>` : ''}
+    `;
+    document.getElementById('model-specs-card').style.display = 'block';
+  } else {
+    specBody.innerHTML = '<span style="color:var(--text-dim)">No specification data available for this model.</span>';
+    document.getElementById('model-specs-card').style.display = 'block';
+  }
+
   // Response time chart
   const labels = state.runs.map(r => fmtTimestampShort(r.timestamp));
   const timeData = s.responseTimes.map(v => v != null ? v / 1000 : null);

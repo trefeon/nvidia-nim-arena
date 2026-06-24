@@ -9,16 +9,23 @@
     "modalities": ["text", "code"],
     "specialty": ["general", "coding", "reasoning", "agentic"],
     "scores": {
+      "elo": 1432,
       "mmlu": 0.887,
-      "mmlu_pro": 0.683,
+      "mmlu_pro": 0.862,
       "humaneval": 0.695,
       "gsm8k": 0.908,
       "math": 0.574,
       "bigcodebench": 0.568,
       "livecodebench": 0.916,
+      "gpqa_diamond": 0.881,
+      "simpleqa_verified": 0.341,
+      "hle": 0.348,
       "longbench_v2": 0.447,
       "aime_2026": 0.905,
-      "hmmt_feb_2026": 0.948
+      "hmmt_feb_2026": 0.948,
+      "swe_bench_verified": 0.790,
+      "codeforces_rating": 3052,
+      "mrcr_1m": 0.787
     }
   },
   {
@@ -31,17 +38,27 @@
     "modalities": ["text", "code"],
     "specialty": ["general", "coding", "reasoning", "agentic"],
     "scores": {
+      "elo": 1462,
       "mmlu": 0.901,
-      "mmlu_pro": 0.735,
+      "mmlu_pro": 0.875,
       "humaneval": 0.768,
       "gsm8k": 0.926,
       "math": 0.645,
       "bigcodebench": 0.592,
-      "swe_verified": 0.806,
+      "livecodebench": 0.935,
+      "gpqa_diamond": 0.901,
+      "simpleqa_verified": 0.579,
+      "hle": 0.377,
+      "swe_bench_verified": 0.806,
       "longbench_v2": 0.515,
       "terminal_bench_2": 0.679,
+      "codeforces_rating": 3206,
       "toolathlon": 0.518,
-      "mcp_atlas": 0.736
+      "mcp_atlas": 0.736,
+      "aime_2026": 0.958,
+      "hmmt_feb_2026": 0.952,
+      "imo_answer_bench": 0.898,
+      "mrcr_1m": 0.835
     }
   },
   {
@@ -54,15 +71,23 @@
     "modalities": ["text", "code"],
     "specialty": ["general", "coding", "agentic", "reasoning", "long-horizon"],
     "scores": {
+      "elo": 1471,
+      "mmlu_pro": 0.860,
+      "gpqa_diamond": 0.862,
       "hle": 0.310,
       "aime_2026": 0.953,
       "hmmt_nov_2025": 0.940,
-      "gpqa_diamond": 0.862,
+      "swe_bench_verified": 0.778,
       "swe_bench_pro": 0.584,
+      "swe_bench_multilingual": 0.733,
       "nl2repo": 0.427,
       "terminal_bench_2": 0.635,
       "browsecomp": 0.680,
-      "cybergym": 0.687
+      "cybergym": 0.687,
+      "tau2_bench": 0.897,
+      "vending_bench_2": 4432.12,
+      "mcp_atlas": 0.692,
+      "tool_decathlon": 0.392
     }
   },
   {
@@ -75,7 +100,12 @@
     "modalities": ["text", "code"],
     "specialty": ["coding", "agentic", "office-productivity", "reasoning"],
     "scores": {
+      "mmlu_pro": 0.870,
+      "gpqa_diamond": 0.874,
+      "humaneval": 0.910,
+      "hle": 0.281,
       "swe_pro": 0.562,
+      "swe_bench_verified": 0.750,
       "vibe_pro": 0.556,
       "terminal_bench_2": 0.570,
       "nl2repo": 0.398,
@@ -84,7 +114,12 @@
       "mm_claw": 0.627,
       "mle_bench_lite_medal": 0.666,
       "swe_multilingual": 0.765,
-      "multi_swe_bench": 0.527
+      "multi_swe_bench": 0.527,
+      "aa_intelligence": 0.496,
+      "tau2_bench": 0.848,
+      "ifbench": 0.757,
+      "aa_lcr": 0.687,
+      "scicode": 0.470
     }
   },
   {
@@ -107,8 +142,23 @@
       "terminal_bench_hard": 0.258,
       "terminal_bench_core_2": 0.310,
       "swe_bench_openhands": 0.605,
+      "swe_bench_opencode": 0.592,
+      "swe_bench_codex": 0.537,
+      "swe_bench_multilingual": 0.458,
       "arena_hard_v2": 0.739,
-      "ruler_1m": 0.918
+      "ruler_256k": 0.963,
+      "ruler_512k": 0.957,
+      "ruler_1m": 0.918,
+      "tau2_airline": 0.563,
+      "tau2_retail": 0.628,
+      "tau2_telecom": 0.644,
+      "tau2_average": 0.612,
+      "browsecomp_with_search": 0.313,
+      "ifbench": 0.726,
+      "bird_bench": 0.418,
+      "mma_hard_v2": 0.739,
+      "mmlu_prox_avg": 0.794,
+      "aa_lcr": 0.583
     }
   },
   {
@@ -120,7 +170,27 @@
     "max_output": "20480",
     "modalities": ["text", "code", "image", "video", "audio"],
     "specialty": ["omni-modal", "reasoning", "vision", "audio", "agentic"],
-    "scores": {}
+    "scores": {
+      "elo": 1428,
+      "gpqa_diamond": 0.469,
+      "hle": 0.053,
+      "scicode": 0.278,
+      "ifbench": 0.632,
+      "tau2_bench": 0.453,
+      "terminal_bench_hard": 0.083,
+      "aa_lcr": 0.357,
+      "mathvista_mini": 0.828,
+      "charxiv_reasoning": 0.636,
+      "mmlongbench_doc": 0.575,
+      "ocrbench_v2_en": 0.670,
+      "cvbench_2d": 0.840,
+      "osworld": 0.474,
+      "video_mme": 0.722,
+      "world_sense": 0.554,
+      "daily_omni": 0.745,
+      "voice_interaction": 0.894,
+      "mmau": 0.746
+    }
   },
   {
     "id": "moonshotai/kimi-k2.6",
@@ -132,7 +202,12 @@
     "modalities": ["text", "code", "image", "video"],
     "specialty": ["coding", "agentic", "reasoning", "multimodal", "long-horizon"],
     "scores": {
+      "elo": 1462,
+      "mmlu_pro": 0.871,
+      "gpqa_diamond": 0.905,
+      "simpleqa_verified": 0.369,
       "hle_full_with_tools": 0.540,
+      "hle_no_tools": 0.347,
       "aime_2026": 0.964,
       "hmmt_feb_2026": 0.927,
       "gpqa_diamond": 0.905,
@@ -147,7 +222,10 @@
       "deepsearchqa_f1": 0.925,
       "osworld_verified": 0.731,
       "mmmu_pro": 0.794,
-      "mathvision": 0.874
+      "mathvision": 0.874,
+      "aa_intelligence": 0.540,
+      "gdpeval_aa_elo": 1520,
+      "tau2_telecom": 0.960
     }
   },
   {
@@ -160,16 +238,27 @@
     "modalities": ["text", "code"],
     "specialty": ["reasoning", "agentic", "instruction-following", "tool-use"],
     "scores": {
+      "mmlu": 0.900,
       "mmlu_pro": 0.810,
       "aime_25_no_tools": 0.925,
+      "aime_25_with_tools": 0.979,
       "hmmt_feb_25": 0.900,
-      "gpqa": 0.801,
+      "gpqa_no_tools": 0.801,
+      "gpqa_with_tools": 0.809,
       "livecodebench_v5": 0.880,
-      "hle": 0.149,
+      "hle_no_tools": 0.149,
+      "hle_with_tools": 0.190,
       "scicode": 0.390,
       "arena_hard_v2": 0.903,
+      "swe_bench_verified": 0.624,
       "swe_bench_openhands": 0.419,
-      "browsecomp_with_search": 0.339
+      "browsecomp_with_search": 0.339,
+      "tau_bench_retail": 0.678,
+      "tau_bench_airline": 0.492,
+      "aider_polyglot": 0.444,
+      "codeforces_no_tools": 2463,
+      "healthbench": 0.576,
+      "aa_intelligence": 0.240
     }
   },
   {
@@ -182,11 +271,13 @@
     "modalities": ["text", "code", "image"],
     "specialty": ["reasoning", "coding", "vision", "multilingual", "agentic"],
     "scores": {
+      "elo": 1452,
       "mmlu_pro": 0.852,
       "aime_2026_no_tools": 0.892,
       "livecodebench_v6": 0.800,
       "codeforces_elo": 2150,
       "gpqa_diamond": 0.843,
+      "simpleqa_verified": 0.250,
       "tau2_avg": 0.769,
       "hle_no_tools": 0.195,
       "hle_with_search": 0.265,
@@ -194,7 +285,8 @@
       "mmmlu": 0.884,
       "mmmu_pro": 0.769,
       "math_vision": 0.856,
-      "mrcr_v2_128k": 0.664
+      "mrcr_v2_128k": 0.664,
+      "mmmu_val_cot": 0.603
     }
   },
   {
@@ -207,10 +299,21 @@
     "modalities": ["text", "code"],
     "specialty": ["coding", "agentic", "browser-use"],
     "scores": {
+      "mmlu_pro": 0.780,
+      "gpqa_diamond": 0.800,
+      "humaneval": 0.920,
+      "livecodebench_v6": 0.449,
+      "codeforces": 1800,
       "swe_bench_verified": 0.720,
       "swe_bench_pro": 0.387,
       "terminal_bench_2": 0.239,
-      "evasion_bench": 0.782
+      "evasion_bench": 0.782,
+      "gaia": 0.442,
+      "fullstackbench_en": 0.625,
+      "fullstackbench_zh": 0.631,
+      "spider": 0.860,
+      "bird_sql": 0.642,
+      "aider_polyglot": 0.604
     }
   },
   {
@@ -223,6 +326,8 @@
     "modalities": ["text", "code"],
     "specialty": ["coding", "general"],
     "scores": {
+      "mmlu": 0.784,
+      "mmlu_pro": 0.520,
       "humaneval": 0.927,
       "humaneval_plus": 0.872,
       "mbpp": 0.902,
@@ -253,17 +358,22 @@
       "mmlu_redux": 0.949,
       "supergpqa": 0.704,
       "gpqa_diamond": 0.884,
+      "simpleqa": 0.320,
       "hle": 0.287,
       "hle_verified": 0.376,
       "livecodebench_v6": 0.836,
       "hmmt_feb_25": 0.948,
       "aime_2026": 0.913,
+      "swe_bench_verified": 0.764,
+      "terminal_bench_2": 0.525,
       "ifeval": 0.926,
       "ifbench": 0.765,
       "aa_lcr": 0.687,
       "longbench_v2": 0.632,
       "bfcl_v4": 0.729,
       "tau2_bench": 0.867,
+      "browsecomp": 0.690,
+      "wide_search": 0.740,
       "tool_decathlon": 0.383,
       "mmmu_pro": 0.790,
       "mathvision": 0.886,
@@ -288,16 +398,17 @@
       "hmmt_feb_25": 0.914,
       "hmmt_nov_25": 0.903,
       "livecodebench_v6": 0.789,
+      "swe_bench_verified": 0.720,
+      "terminal_bench_2": 0.494,
       "ifeval": 0.934,
       "ifbench": 0.761,
       "aa_lcr": 0.669,
       "longbench_v2": 0.602,
-      "swe_bench_verified": 0.720,
-      "terminal_bench_2": 0.494,
       "bfcl_v4": 0.722,
       "tau2_bench": 0.795,
       "hle_with_tool": 0.475,
-      "browsecomp": 0.638
+      "browsecomp": 0.638,
+      "codeforces": 2160
     }
   },
   {
@@ -310,7 +421,13 @@
     "modalities": ["text", "code", "image"],
     "specialty": ["general", "coding", "reasoning", "agentic", "multilingual"],
     "scores": {
-      "mmlu_pro": 0.798,
+      "elo": 1421,
+      "mmlu_pro": 0.855,
+      "humaneval": 0.920,
+      "livecodebench": 0.828,
+      "gpqa_diamond": 0.672,
+      "google_proof_qa": 0.439,
+      "tau_bench": 0.702,
       "swe_bench_verified": 0.776
     }
   },
@@ -325,9 +442,16 @@
     "specialty": ["coding", "reasoning", "agentic", "instruction-following"],
     "scores": {
       "mmlu_pro": 0.798,
+      "gpqa_diamond": 0.748,
+      "hle": 0.128,
+      "scicode": 0.396,
+      "terminal_bench_hard": 0.333,
       "swe_bench_verified": 0.776,
       "google_proof_qa": 0.713,
-      "tau3_telecom": 0.914
+      "tau3_telecom": 0.914,
+      "ifbench": 0.688,
+      "aa_lcr": 0.610,
+      "aa_intelligence": 0.299
     }
   },
   {
@@ -340,6 +464,7 @@
     "modalities": ["text", "code"],
     "specialty": ["general", "multilingual-dialogue", "instruction-following"],
     "scores": {
+      "elo": 1256,
       "mmlu_cot": 0.860,
       "mmlu_pro_cot": 0.689,
       "gpqa_diamond_cot": 0.505,
@@ -361,10 +486,12 @@
     "modalities": ["text", "code", "image"],
     "specialty": ["general", "coding", "vision", "multilingual"],
     "scores": {
+      "elo": 1417,
       "mmlu": 0.855,
       "mmlu_pro": 0.805,
       "math": 0.612,
       "mbpp": 0.776,
+      "humaneval": 0.824,
       "gpqa_diamond": 0.698,
       "livecodebench": 0.434,
       "mmmu": 0.734,
@@ -386,6 +513,10 @@
     "modalities": ["text", "code", "image"],
     "specialty": ["vision", "general", "reasoning"],
     "scores": {
+      "mmlu_cot": 0.860,
+      "gpqa": 0.467,
+      "math_cot": 0.680,
+      "mgsm_cot": 0.869,
       "mmmu_val_cot": 0.603,
       "mmmu_pro_standard": 0.452,
       "mmmu_pro_vision": 0.338,
@@ -393,11 +524,7 @@
       "chartqa_cot": 0.855,
       "ai2_diagram": 0.923,
       "docvqa": 0.901,
-      "vqav2": 0.781,
-      "mmlu_cot": 0.860,
-      "math_cot": 0.680,
-      "gpqa": 0.467,
-      "mgsm_cot": 0.869
+      "vqav2": 0.781
     }
   },
   {
@@ -422,7 +549,8 @@
       "browsecomp_w_context": 0.690,
       "gaia_no_file": 0.845,
       "xbench_deepsearch_05": 0.837,
-      "xbench_deepsearch_10": 0.563
+      "xbench_deepsearch_10": 0.563,
+      "research_rubrics": 0.653
     }
   },
   {
@@ -435,6 +563,8 @@
     "modalities": ["text", "code", "image", "video"],
     "specialty": ["reasoning", "coding", "vision", "agentic", "tool-use"],
     "scores": {
+      "aa_intelligence": 0.300,
+      "gpqa_diamond_avg16": 0.778,
       "hle_with_tool": 0.472,
       "browsecomp": 0.758,
       "deepsearchqa_f1": 0.928,
@@ -447,8 +577,7 @@
       "terminal_bench_2_1": 0.596,
       "aa_lcr": 0.639,
       "simplevqa_search": 0.792,
-      "v_star_python": 0.953,
-      "gpqa_diamond_avg16": 0.778
+      "v_star_python": 0.953
     }
   }
 ]

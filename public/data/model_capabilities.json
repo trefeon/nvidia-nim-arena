@@ -126,29 +126,55 @@
       ]
     },
     "deepseek-ai/deepseek-v4-flash": {
-      "description": "284B MoE model with 1M-token context optimized for fast coding and agents.",
-      "params": "284B MoE",
+      "description": "DeepSeek's flagship 284B-parameter MoE model optimized for fast inference with 1M context window and strong coding/reasoning performance.",
+      "params": "284B/13B MoE",
       "context": "1M",
       "contextTokens": 1000000,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code"],
+      "specialty": ["general", "coding", "reasoning"],
+      "scores": {
+        "elo": 1432,
+        "mmlu_pro": 0.84,
+        "humaneval": 0.90,
+        "livecodebench": 0.70,
+        "gpqa": 0.78,
+        "simpleqa": 0.82
+      },
       "tags": [
+        "Chat",
         "Coding",
-        "Agentic",
-        "Long Context",
+        "Reasoning",
         "MoE",
-        "Chat"
+        "Long Context",
+        "Open Weights"
       ]
     },
     "deepseek-ai/deepseek-v4-pro": {
-      "description": "671B frontier MoE reasoning and coding model with ultra-large parameters, optimizing for extreme precision.",
-      "params": "671B MoE",
-      "context": "128K",
-      "contextTokens": 131072,
+      "description": "DeepSeek's largest 1.6T-parameter MoE model delivering frontier-level reasoning, math, and code generation.",
+      "params": "1.6T/49B MoE",
+      "context": "1M",
+      "contextTokens": 1000000,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code"],
+      "specialty": ["general", "coding", "reasoning", "math"],
+      "scores": {
+        "elo": 1462,
+        "mmlu_pro": 0.88,
+        "humaneval": 0.93,
+        "livecodebench": 0.75,
+        "gpqa": 0.82,
+        "simpleqa": 0.85
+      },
       "tags": [
-        "Reasoning",
-        "Coding",
-        "MoE",
         "Chat",
-        "Long Context"
+        "Coding",
+        "Reasoning",
+        "MoE",
+        "Long Context",
+        "Open Weights"
       ]
     },
     "google/codegemma-1.1-7b": {
@@ -251,15 +277,26 @@
       ]
     },
     "google/gemma-4-31b-it": {
-      "description": "High-performance instruction-following model in the Gemma-4 series, balancing speed and reasoning.",
-      "params": "31B",
-      "context": "128K",
-      "contextTokens": 131072,
+      "description": "Google's best dense sub-32B model with vision capabilities, strong benchmarks, and open weights.",
+      "params": "31B Dense",
+      "context": "256K",
+      "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image"],
+      "specialty": ["multimodal", "general", "coding"],
+      "scores": {
+        "elo": 1452,
+        "mmlu_pro": 0.83,
+        "humaneval": 0.81,
+        "gpqa": 0.76
+      },
       "tags": [
+        "Multimodal",
         "Chat",
-        "Open Weights",
-        "Reasoning",
-        "Long Context"
+        "Coding",
+        "Long Context",
+        "Open Weights"
       ]
     },
     "google/recurrentgemma-2b": {
@@ -382,15 +419,24 @@
       ]
     },
     "meta/llama-3.2-90b-vision-instruct": {
-      "description": "90B frontier vision-language model excelling at complex reasoning from images.",
-      "params": "90B",
+      "description": "Meta's 90B vision-language model built on Llama 3.2 for image understanding and general chat.",
+      "params": "90B Dense",
       "context": "128K",
       "contextTokens": 131072,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image"],
+      "specialty": ["multimodal", "vision", "general"],
+      "scores": {
+        "elo": 1330,
+        "mmlu_pro": 0.71,
+        "humaneval": 0.67
+      },
       "tags": [
         "Multimodal",
         "Chat",
-        "Open Weights",
-        "Long Context"
+        "Long Context",
+        "Open Weights"
       ]
     },
     "meta/llama-3.3-70b-instruct": {
@@ -408,27 +454,46 @@
       ]
     },
     "meta/llama-3_3-70b-instruct": {
-      "description": "70B Llama 3.3 model updated with improved reasoning, math, and tool-calling capabilities (underscore name variation).",
-      "params": "70B",
+      "description": "Meta's mature 70B instruction-tuned model with broad community support and solid general performance.",
+      "params": "70B Dense",
       "context": "128K",
       "contextTokens": 131072,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code"],
+      "specialty": ["general", "chat", "instruction following"],
+      "scores": {
+        "elo": 1256,
+        "mmlu_pro": 0.69,
+        "humaneval": 0.65
+      },
       "tags": [
         "Chat",
-        "Coding",
-        "Reasoning",
         "Long Context",
-        "Open Weights",
-        "Agentic"
+        "Open Weights"
       ]
     },
     "meta/llama-4-maverick-17b-128e-instruct": {
-      "description": "General-purpose multimodal multilingual MoE with 17B active params across 128 experts.",
-      "params": "17B MoE (128 experts)",
+      "description": "Meta's latest 400B MoE model with 1M context and strong multimodal understanding.",
+      "params": "400B/17B MoE",
       "context": "1M",
       "contextTokens": 1000000,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image"],
+      "specialty": ["multimodal", "general", "coding", "reasoning"],
+      "scores": {
+        "elo": 1417,
+        "mmlu_pro": 0.82,
+        "humaneval": 0.83,
+        "gpqa": 0.77,
+        "livecodebench": 0.67
+      },
       "tags": [
         "Multimodal",
         "Chat",
+        "Coding",
+        "Reasoning",
         "MoE",
         "Long Context",
         "Open Weights"
@@ -483,14 +548,23 @@
       ]
     },
     "minimaxai/minimax-m2.7": {
-      "description": "High-throughput MoE model optimized for general chat, coding, and fast API response times.",
-      "params": "MoE",
-      "context": "128K",
-      "contextTokens": 131072,
+      "description": "MiniMax's lightweight 230B MoE model optimized for fast chat and instruction following with a 200K context window.",
+      "params": "230B/10B MoE",
+      "context": "200K",
+      "contextTokens": 204800,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code"],
+      "specialty": ["general", "chat", "instruction following"],
+      "scores": {
+        "elo": 1380,
+        "mmlu_pro": 0.76,
+        "humaneval": 0.72
+      },
       "tags": [
         "Chat",
-        "Coding",
-        "MoE"
+        "MoE",
+        "Long Context"
       ]
     },
     "mistralai/codestral-22b-instruct-v0.1": {
@@ -551,27 +625,48 @@
       ]
     },
     "mistralai/mistral-large-3-675b-instruct-2512": {
-      "description": "State-of-the-art MoE vision-language model for chat, agentic, and instruction-based use cases.",
-      "params": "675B MoE",
+      "description": "Mistral's largest 675B MoE model excelling in reasoning, multilingual tasks, and vision understanding.",
+      "params": "675B/41B MoE",
       "context": "256K",
       "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image"],
+      "specialty": ["general", "reasoning", "coding", "multilingual"],
+      "scores": {
+        "elo": 1421,
+        "mmlu_pro": 0.85,
+        "humaneval": 0.86,
+        "gpqa": 0.79,
+        "livecodebench": 0.69
+      },
       "tags": [
-        "Multimodal",
-        "Agentic",
         "Chat",
+        "Reasoning",
+        "Coding",
+        "Multimodal",
         "MoE",
         "Long Context"
       ]
     },
     "mistralai/mistral-medium-3.5-128b": {
-      "description": "High-performing text model for generation, coding, and agentic use cases.",
-      "params": "128B",
+      "description": "Mistral's mid-range 128B dense model balancing speed and quality for general chat and multilingual use.",
+      "params": "128B Dense",
       "context": "256K",
       "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image"],
+      "specialty": ["general", "chat", "multilingual"],
+      "scores": {
+        "elo": 1390,
+        "mmlu_pro": 0.78,
+        "humaneval": 0.75,
+        "gpqa": 0.70
+      },
       "tags": [
-        "Coding",
-        "Agentic",
-        "Reasoning",
+        "Chat",
+        "Multimodal",
         "Long Context"
       ]
     },
@@ -611,17 +706,29 @@
       ]
     },
     "moonshotai/kimi-k2.6": {
-      "description": "1T multimodal MoE for long-horizon coding, agentic tool use, and image understanding.",
-      "params": "1T MoE",
+      "description": "Moonshot AI's 1T MoE model with strong multimodal understanding and Chinese/English bilingual performance.",
+      "params": "1T/32B MoE",
       "context": "256K",
       "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image", "video"],
+      "specialty": ["multimodal", "general", "coding", "reasoning"],
+      "scores": {
+        "elo": 1462,
+        "mmlu_pro": 0.87,
+        "humaneval": 0.89,
+        "livecodebench": 0.72,
+        "gpqa": 0.81,
+        "simpleqa": 0.83
+      },
       "tags": [
-        "Coding",
-        "Agentic",
         "Multimodal",
-        "Long Context",
+        "Chat",
+        "Coding",
+        "Reasoning",
         "MoE",
-        "Chat"
+        "Long Context"
       ]
     },
     "nv-mistralai/mistral-nemo-12b-instruct": {
@@ -750,29 +857,47 @@
       ]
     },
     "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning": {
-      "description": "Omni-modal reasoning model supporting video, speech, and text.",
-      "params": "30B MoE (3B active)",
+      "description": "NVIDIA's ultra-efficient 30B omni-modal MoE model supporting text, image, video, and audio with strong reasoning at minimal compute.",
+      "params": "30B/3B MoE",
       "context": "256K",
       "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image", "video", "audio"],
+      "specialty": ["multimodal", "reasoning", "general"],
+      "scores": {
+        "elo": 1428,
+        "mmlu_pro": 0.75,
+        "gpqa": 0.70
+      },
       "tags": [
-        "Reasoning",
         "Multimodal",
+        "Reasoning",
         "MoE",
-        "Open Weights"
+        "Chat",
+        "Long Context"
       ]
     },
     "nvidia/nemotron-3-super-120b-a12b": {
-      "description": "120B MoE model (12B active) combining Mamba-2 and Transformer layers for long-context agentic reasoning.",
-      "params": "120B MoE (12B active)",
+      "description": "NVIDIA's 120B MoE model optimized for long-context reasoning with 1M token support and strong math capabilities.",
+      "params": "120B/12B MoE",
       "context": "1M",
       "contextTokens": 1000000,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code"],
+      "specialty": ["general", "reasoning", "math"],
+      "scores": {
+        "elo": 1370,
+        "mmlu_pro": 0.78,
+        "gpqa": 0.72,
+        "humaneval": 0.74
+      },
       "tags": [
-        "Reasoning",
-        "Agentic",
-        "Coding",
-        "Long Context",
-        "MoE",
         "Chat",
+        "Reasoning",
+        "MoE",
+        "Long Context",
         "Open Weights"
       ]
     },
@@ -839,37 +964,67 @@
       ]
     },
     "openai/gpt-oss-120b": {
-      "description": "Text-only MoE reasoning LLM designed to fit on a single 80GB GPU.",
-      "params": "120B MoE",
+      "description": "OpenAI's open-source 120B dense model with broad general knowledge and instruction following.",
+      "params": "120B Dense",
       "context": "128K",
       "contextTokens": 131072,
+      "max_output": "16K",
+      "max_output_tokens": 16384,
+      "modalities": ["text", "code"],
+      "specialty": ["general", "coding", "instruction following"],
+      "scores": {
+        "elo": 1340,
+        "mmlu_pro": 0.72,
+        "humaneval": 0.68
+      },
       "tags": [
-        "Reasoning",
-        "MoE",
-        "Open Weights",
+        "Chat",
+        "Coding",
         "Long Context"
       ]
     },
     "qwen/qwen2.5-coder-32b-instruct": {
-      "description": "32B model by Alibaba, widely recognized as one of the best open-weights coding models.",
-      "params": "32B",
-      "context": "32K",
-      "contextTokens": 32768,
+      "description": "Alibaba's efficient 32B dense coder offering strong code generation in a compact package.",
+      "params": "32B Dense",
+      "context": "128K",
+      "contextTokens": 131072,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code"],
+      "specialty": ["coding", "general"],
+      "scores": {
+        "elo": 1380,
+        "mmlu_pro": 0.74,
+        "humaneval": 0.88,
+        "livecodebench": 0.65
+      },
       "tags": [
         "Coding",
         "Chat",
+        "Long Context",
         "Open Weights"
       ]
     },
     "qwen/qwen3-coder-480b-a35b-instruct": {
-      "description": "480B MoE model (35B active) optimized for multi-file coding and software architecture tasks.",
-      "params": "480B MoE (35B active)",
-      "context": "128K",
-      "contextTokens": 131072,
+      "description": "Alibaba's specialized 480B coding MoE model with top-tier code generation and 256K context.",
+      "params": "480B/35B MoE",
+      "context": "256K",
+      "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code"],
+      "specialty": ["coding", "reasoning", "general"],
+      "scores": {
+        "elo": 1440,
+        "mmlu_pro": 0.80,
+        "humaneval": 0.94,
+        "livecodebench": 0.78
+      },
       "tags": [
         "Coding",
+        "Reasoning",
+        "Chat",
         "MoE",
-        "Open Weights",
         "Long Context"
       ]
     },
@@ -885,50 +1040,87 @@
       ]
     },
     "qwen/qwen3.5-122b-a10b": {
-      "description": "122B MoE (10B active) reasoning model specializing in math and logic proofs.",
-      "params": "122B MoE (10B active)",
-      "context": "128K",
-      "contextTokens": 131072,
+      "description": "Alibaba's balanced 122B MoE model with multimodal support and efficient inference.",
+      "params": "122B/10B MoE",
+      "context": "262K",
+      "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image", "video"],
+      "specialty": ["multimodal", "general", "chat"],
+      "scores": {
+        "elo": 1420,
+        "mmlu_pro": 0.81,
+        "humaneval": 0.80,
+        "gpqa": 0.74
+      },
       "tags": [
+        "Multimodal",
+        "Chat",
         "MoE",
-        "Reasoning",
         "Long Context"
       ]
     },
     "qwen/qwen3.5-397b-a17b": {
-      "description": "397B MoE (17B active) large-context text model with multi-agent capabilities.",
-      "params": "397B MoE (17B active)",
-      "context": "256K",
+      "description": "Alibaba's latest 397B MoE model with vision-language capabilities and near-frontier benchmark scores.",
+      "params": "397B/17B MoE",
+      "context": "262K",
       "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image", "video"],
+      "specialty": ["multimodal", "general", "reasoning"],
+      "scores": {
+        "elo": 1465,
+        "mmlu_pro": 0.86,
+        "humaneval": 0.87,
+        "gpqa": 0.80
+      },
       "tags": [
+        "Multimodal",
+        "Chat",
+        "Reasoning",
         "MoE",
-        "Long Context",
-        "Chat"
+        "Long Context"
       ]
     },
     "stepfun-ai/step-3.5-flash": {
-      "description": "200B reasoning engine with sparse MoE for frontier agentic AI.",
-      "params": "200B MoE",
+      "description": "StepFun's cost-efficient 196B MoE flash model optimized for fast and affordable inference.",
+      "params": "196B/11B MoE",
       "context": "256K",
       "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code"],
+      "specialty": ["general", "fast inference", "chat"],
+      "scores": {
+        "elo": 1340,
+        "mmlu_pro": 0.73,
+        "humaneval": 0.70
+      },
       "tags": [
-        "Agentic",
-        "Coding",
-        "Reasoning",
+        "Chat",
         "MoE",
-        "Long Context",
-        "Open Weights"
+        "Long Context"
       ]
     },
     "stepfun-ai/step-3.7-flash": {
-      "description": "Upgraded StepFun model with advanced visual logic and agentic capabilities.",
-      "params": "MoE",
+      "description": "StepFun's updated 198B MoE flash model adding vision-language support while maintaining fast inference.",
+      "params": "198B/11B MoE",
       "context": "256K",
       "contextTokens": 262144,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code", "image", "video"],
+      "specialty": ["multimodal", "general", "fast inference"],
+      "scores": {
+        "elo": 1360,
+        "mmlu_pro": 0.75,
+        "humaneval": 0.72
+      },
       "tags": [
-        "Agentic",
-        "Coding",
-        "Reasoning",
+        "Multimodal",
+        "Chat",
         "MoE",
         "Long Context"
       ]
@@ -992,12 +1184,26 @@
       ]
     },
     "z-ai/glm-5.1": {
-      "description": "General-purpose chat and instruction model in the GLM series, optimized for dialogue.",
-      "params": "GLM",
-      "context": "128K",
-      "contextTokens": 131072,
+      "description": "Zhipu AI's most advanced 744B MoE model with strong general knowledge and bilingual (Chinese/English) capabilities.",
+      "params": "744B/40B MoE",
+      "context": "200K",
+      "contextTokens": 204800,
+      "max_output": "8K",
+      "max_output_tokens": 8192,
+      "modalities": ["text", "code"],
+      "specialty": ["general", "coding", "reasoning"],
+      "scores": {
+        "elo": 1471,
+        "mmlu_pro": 0.86,
+        "humaneval": 0.88,
+        "livecodebench": 0.68,
+        "gpqa": 0.80
+      },
       "tags": [
         "Chat",
+        "Coding",
+        "Reasoning",
+        "MoE",
         "Long Context"
       ]
     },
