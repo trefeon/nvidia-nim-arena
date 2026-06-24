@@ -236,7 +236,7 @@ def run_benchmark_subprocess():
 def append_log(text):
     with task_lock:
         # Limit log size to prevent unbounded memory usage (keep last 5000 lines)
-        if len(log_buffer) > 5000:
+        if len(log_buffer) >= 5000:
             log_buffer.pop(0)
         log_buffer.append(text)
 
