@@ -416,7 +416,6 @@ def main() -> int:
             pass
 
     selected_key_idx = current_idx % len(available_keys)
-    selected_key = available_keys[selected_key_idx]
 
     # Save the next index
     next_idx = (selected_key_idx + 1) % len(available_keys)
@@ -425,9 +424,7 @@ def main() -> int:
     except Exception as e:
         print(f"Warning: Failed to save next key index: {e}", file=sys.stderr)
 
-    print(f"Loaded {len(available_keys)} API keys. Using key {selected_key_idx + 1}/{len(available_keys)} for this run.")
-
-    available_keys = [selected_key]
+    print(f"Loaded {len(available_keys)} API keys. Using offset index {selected_key_idx + 1}/{len(available_keys)} for rotation.")
 
     def test_single_model(model: str, start_key_idx: int) -> dict[str, Any]:
         attempts = 0
@@ -488,7 +485,7 @@ def main() -> int:
     
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [
-            executor.submit(test_single_model, model, (i % len(available_keys)))
+            executor.submit(test_single_model, model, ((i + selected_key_idx) % len(available_keys)))
             for i, model in enumerate(models)
         ]
         for fut in futures:

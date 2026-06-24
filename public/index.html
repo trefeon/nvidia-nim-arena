@@ -219,6 +219,9 @@
         <div class="card-title"><span class="dot"></span>Task Runner</div>
         <div class="flex items-center gap-3" style="margin-bottom:20px;flex-wrap:wrap">
           <button class="btn-primary" id="btn-run-benchmark">⚡ Run Benchmark</button>
+          <label class="flex items-center gap-2" style="font-size:13px;color:var(--text-dim);cursor:pointer;user-select:none;margin-left:15px">
+            <input type="checkbox" id="chk-loop-benchmark" style="cursor:pointer;accent-color:var(--accent);width:16px;height:16px"> Loop Benchmarks
+          </label>
           <div id="runner-status" class="mono text-dim" style="font-size:13px">Status: Checking local server...</div>
           <div id="runner-timer" class="mono text-dim" style="font-size:13px;margin-left:auto">Duration: 0s</div>
         </div>

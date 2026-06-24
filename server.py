@@ -9,6 +9,7 @@ from http.server import SimpleHTTPRequestHandler, HTTPServer
 # Global task state
 task_lock = threading.Lock()
 is_running = False
+loop_enabled = False
 log_buffer = []
 last_exit_code = None
 start_time = 0
@@ -40,6 +41,7 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
                 
                 status_data = {
                     "status": "running" if is_running else "idle",
+                    "loop_enabled": loop_enabled,
                     "duration_seconds": duration,
                     "exit_code": last_exit_code,
                     "logs": "".join(log_buffer)
@@ -51,7 +53,7 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
         super().do_GET()
 
     def do_POST(self):
-        global is_running, log_buffer, last_exit_code, start_time
+        global is_running, log_buffer, last_exit_code, start_time, loop_enabled
 
         if self.path == '/api/run-benchmark':
             with task_lock:
@@ -79,45 +81,83 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({"message": "Benchmark run started successfully."}).encode('utf-8'))
             return
 
+        if self.path == '/api/set-loop':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            try:
+                data = json.loads(post_data.decode('utf-8'))
+                with task_lock:
+                    loop_enabled = bool(data.get("loop", False))
+                
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"message": "Loop status updated successfully.", "loop_enabled": loop_enabled}).encode('utf-8'))
+            except Exception as e:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": f"Invalid request: {e}"}).encode('utf-8'))
+            return
+
         self.send_response(404)
         self.end_headers()
 
 def run_benchmark_subprocess():
-    global is_running, log_buffer, last_exit_code
+    global is_running, log_buffer, last_exit_code, start_time
     
-    append_log("[System] Launching NVIDIA NIM Model Benchmarks...\n")
-    try:
-        # Use sys.executable to ensure we run with the same python interpreter
-        # Execute test_models.py inside the scripts directory
-        process = subprocess.Popen(
-            [sys.executable, "scripts/test_models.py"],
-            cwd=os.path.dirname(os.path.abspath(__file__)),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            encoding='utf-8'
-        )
-        
-        # Read logs in real-time
-        while True:
-            line = process.stdout.readline()
-            if not line:
-                break
-            append_log(line)
+    while True:
+        append_log("[System] Launching NVIDIA NIM Model Benchmarks...\n")
+        try:
+            # Use sys.executable to ensure we run with the same python interpreter
+            # Execute test_models.py inside the scripts directory
+            process = subprocess.Popen(
+                [sys.executable, "scripts/test_models.py"],
+                cwd=os.path.dirname(os.path.abspath(__file__)),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                bufsize=1,
+                encoding='utf-8'
+            )
             
-        process.wait()
+            # Read logs in real-time
+            while True:
+                line = process.stdout.readline()
+                if not line:
+                    break
+                append_log(line)
+                
+            process.wait()
+            
+            with task_lock:
+                last_exit_code = process.returncode
+                
+            append_log(f"\n[System] Benchmark completed with exit code: {last_exit_code}\n")
+        except Exception as e:
+            with task_lock:
+                last_exit_code = -1
+            append_log(f"\n[System Error] Failed to execute benchmark script: {e}\n")
         
+        # Mark running status as False so dashboard can detect run completion
         with task_lock:
-            last_exit_code = process.returncode
             is_running = False
             
-        append_log(f"\n[System] Benchmark completed with exit code: {last_exit_code}\n")
-    except Exception as e:
+        # Wait 5 seconds to let dashboard poll and refresh before next run starts
+        for _ in range(50):
+            time.sleep(0.1)
+            with task_lock:
+                if not loop_enabled:
+                    return
+        
+        # If loop is still enabled, start next iteration
         with task_lock:
-            is_running = False
-            last_exit_code = -1
-        append_log(f"\n[System Error] Failed to execute benchmark script: {e}\n")
+            if not loop_enabled:
+                return
+            is_running = True
+            log_buffer.clear()
+            last_exit_code = None
+            start_time = time.time()
 
 def append_log(text):
     with task_lock:

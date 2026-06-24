@@ -1196,6 +1196,11 @@ function updateRunnerUI(data) {
   const statusEl = document.getElementById('runner-status');
   const timerEl = document.getElementById('runner-timer');
   const logsEl = document.getElementById('runner-logs');
+  const chkLoop = document.getElementById('chk-loop-benchmark');
+  
+  if (chkLoop && document.activeElement !== chkLoop) {
+    chkLoop.checked = !!data.loop_enabled;
+  }
   
   if (data.status === 'running') {
     if (btn) {
@@ -1271,11 +1276,31 @@ async function triggerBenchmark() {
   }
 }
 
+async function toggleLoopBenchmark(e) {
+  const checked = e.target.checked;
+  try {
+    const res = await fetch('/api/set-loop', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ loop: checked })
+    });
+    if (!res.ok) {
+      throw new Error(`Server returned HTTP ${res.status}`);
+    }
+  } catch (err) {
+    alert("Failed to toggle loop mode: " + err.message);
+    e.target.checked = !checked;
+  }
+}
+
 async function loadDataAndRefresh() {
   const res = await fetch('history.db?t=' + Date.now());
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const buf = await res.arrayBuffer();
   state.db = new state.SQL.Database(new Uint8Array(buf));
+  document.getElementById('error-state').style.display = 'none';
 
   await loadBannedModels();
   await loadCapabilities();
@@ -1375,6 +1400,11 @@ async function init() {
     const runBtn = document.getElementById('btn-run-benchmark');
     if (runBtn) {
       runBtn.addEventListener('click', triggerBenchmark);
+    }
+
+    const chkLoop = document.getElementById('chk-loop-benchmark');
+    if (chkLoop) {
+      chkLoop.addEventListener('change', toggleLoopBenchmark);
     }
 
     // Initial check on runner API server status
