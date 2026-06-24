@@ -30,7 +30,6 @@ nvidia/llama-3.3-nemotron-super-49b-v1.5
 nvidia/llama3-chatqa-1.5-70b
 nvidia/mistral-nemo-minitron-8b-8k-instruct
 nvidia/nemotron-4-340b-instruct
-nvidia/nemotron-nano-12b-v2-vl
 nvidia/nemotron-nano-3-30b-a3b
 nvidia/nvidia-nemotron-nano-9b-v2
 stepfun-ai/step-3.7-flash

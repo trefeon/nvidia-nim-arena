@@ -112,7 +112,7 @@ def run_benchmark_subprocess():
             # Use sys.executable to ensure we run with the same python interpreter
             # Execute test_models.py inside the scripts directory
             process = subprocess.Popen(
-                [sys.executable, "scripts/test_models.py"],
+                [sys.executable, "-u", "scripts/test_models.py"],
                 cwd=os.path.dirname(os.path.abspath(__file__)),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
