@@ -39,8 +39,24 @@ def get_api_keys() -> list[str]:
             k = k.strip()
             if k and k not in keys:
                 keys.append(k)
+
+    # Numbered key list: NIM_API_KEY_1, NIM_API_KEY_2, etc.
+    i = 1
+    while True:
+        k = os.getenv(f"NIM_API_KEY_{i}", "")
+        if not k:
+            if i > 10:
+                break
+            if not os.getenv(f"NIM_API_KEY_{i+1}", ""):
+                break
+        else:
+            k = k.strip()
+            if k and k not in keys:
+                keys.append(k)
+        i += 1
+
     if not keys:
-        logger.error("No API keys found. Set NIM_API_KEY or NIM_API_KEYS.")
+        logger.error("No API keys found. Set NIM_API_KEY, NIM_API_KEYS, or NIM_API_KEY_N variables.")
         sys.exit(1)
     logger.info(f"Loaded {len(keys)} API key(s).")
     return keys

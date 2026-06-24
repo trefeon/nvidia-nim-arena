@@ -95,7 +95,7 @@ def ban_model(model: str) -> None:
 
 
 def get_available_keys() -> list[str]:
-    """Retrieve all available API keys, including primary and rotation keys."""
+    """Retrieve all available API keys, including primary, rotation, and numbered keys."""
     keys = []
     if API_KEY:
         keys.append(API_KEY)
@@ -105,6 +105,22 @@ def get_available_keys() -> list[str]:
             k = k.strip()
             if k and k not in keys:
                 keys.append(k)
+
+    # Numbered key list: NIM_API_KEY_1, NIM_API_KEY_2, etc.
+    i = 1
+    while True:
+        k = os.getenv(f"NIM_API_KEY_{i}", "")
+        if not k:
+            if i > 10:
+                break
+            if not os.getenv(f"NIM_API_KEY_{i+1}", ""):
+                break
+        else:
+            k = k.strip()
+            if k and k not in keys:
+                keys.append(k)
+        i += 1
+
     return keys
 
 
@@ -394,7 +410,28 @@ def main() -> int:
         print("Error: No NIM API keys available", file=sys.stderr)
         return 1
 
-    print(f"Loaded {len(available_keys)} API keys for rotation.")
+    # Key rotation: use exactly one key per run of the script
+    idx_file = SCRIPT_DIR.parent / "data" / "current_key_idx.txt"
+    current_idx = 0
+    if idx_file.exists():
+        try:
+            current_idx = int(idx_file.read_text().strip())
+        except Exception:
+            pass
+
+    selected_key_idx = current_idx % len(available_keys)
+    selected_key = available_keys[selected_key_idx]
+
+    # Save the next index
+    next_idx = (selected_key_idx + 1) % len(available_keys)
+    try:
+        idx_file.write_text(str(next_idx), encoding="utf-8")
+    except Exception as e:
+        print(f"Warning: Failed to save next key index: {e}", file=sys.stderr)
+
+    print(f"Loaded {len(available_keys)} API keys. Using key {selected_key_idx + 1}/{len(available_keys)} for this run.")
+
+    available_keys = [selected_key]
 
     def test_single_model(model: str, start_key_idx: int) -> dict[str, Any]:
         attempts = 0
