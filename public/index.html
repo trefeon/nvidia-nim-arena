@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=2">
 </head>
 <body>
 
@@ -219,6 +219,8 @@
         <div class="card-title"><span class="dot"></span>Task Runner</div>
         <div class="flex items-center gap-3" style="margin-bottom:20px;flex-wrap:wrap">
           <button class="btn-primary" id="btn-run-benchmark">⚡ Run Benchmark</button>
+          <button class="btn-danger" id="btn-stop-benchmark" style="display:none">⏹️ Stop Benchmark</button>
+          <button class="btn-danger" id="btn-reset-data">🗑️ Reset Data</button>
           <label class="flex items-center gap-2" style="font-size:13px;color:var(--text-dim);cursor:pointer;user-select:none;margin-left:15px">
             <input type="checkbox" id="chk-loop-benchmark" style="cursor:pointer;accent-color:var(--accent);width:16px;height:16px"> Loop Benchmarks
           </label>
@@ -248,6 +250,6 @@
   </div>
 </div>
 
-<script defer src="js/dashboard.js"></script>
+<script defer src="js/dashboard.js?v=2"></script>
 </body>
 </html>

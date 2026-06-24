@@ -69,6 +69,12 @@ function avg(arr) {
   return arr.reduce((a, b) => a + b, 0) / arr.length;
 }
 
+function stdDev(arr, mean) {
+  if (arr.length < 2) return 0;
+  const sumSq = arr.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0);
+  return Math.sqrt(sumSq / arr.length);
+}
+
 function fmtMs(ms) {
   if (ms == null) return '—';
   return (ms / 1000).toFixed(2) + 's';
@@ -237,10 +243,10 @@ function loadFromDb(db) {
   const runById = new Map(runs.map((r, i) => [r._dbId, i]));
 
   const resQ = db.exec(
-    'SELECT run_id, model, success, error, response_time, tokens_generated, total_tokens FROM model_results ORDER BY run_id ASC'
+    'SELECT run_id, model, success, error, response_time, tokens_generated, total_tokens, unreliable FROM model_results ORDER BY run_id ASC'
   );
   if (resQ.length && resQ[0].values.length) {
-    for (const [run_id, model, success, error, rt, tg, tt] of resQ[0].values) {
+    for (const [run_id, model, success, error, rt, tg, tt, unreliable] of resQ[0].values) {
       const idx = runById.get(run_id);
       if (idx !== undefined) {
         runs[idx].models.push({
@@ -250,6 +256,7 @@ function loadFromDb(db) {
           responseTime: rt,
           tokensGenerated: tg,
           totalTokens: tt,
+          unreliable: unreliable === 1,
           response: null  // lazy-loaded on demand
         });
       }
@@ -273,15 +280,43 @@ function processData(data) {
       .filter(r => r.responseTime > 0)
       .map(r => r.tokensGenerated / (r.responseTime / 1000));
 
+    const uptime = testedResults.length ? successes.length / testedResults.length : 0;
+    const avgTime = times.length ? avg(times) : 0;
+
+    // Consistency (Coefficient of Variation)
+    let consistency = 1.0;
+    if (times.length >= 2) {
+      const sd = stdDev(times, avgTime);
+      const cv = sd / avgTime;
+      consistency = Math.max(0, 1 - cv);
+    }
+
+    // Latency score (higher is better, penalize average latency > 15s)
+    const latencyScore = avgTime > 0 ? Math.max(0, 1 - avgTime / 15000) : 0;
+
+    // Unreliable runs penalty
+    const unreliableRuns = successes.filter(r => r.unreliable || r.responseTime > 60000).length;
+    const unreliableRate = successes.length ? unreliableRuns / successes.length : 0;
+    const reliabilityModifier = 1 - unreliableRate;
+
+    let reliability = 0;
+    if (testedResults.length > 0) {
+      // 50% weight on Uptime, 25% on Latency, 25% on Consistency
+      // Penalized by the proportion of unreliable runs
+      const composite = (uptime * 0.50) + (latencyScore * 0.25) + (consistency * 0.25);
+      reliability = Math.round(composite * reliabilityModifier * 100);
+    }
+
     modelStats[model] = {
       results,
       totalRuns: testedResults.length,
       successCount: successes.length,
-      uptime: testedResults.length ? successes.length / testedResults.length : 0,
+      uptime,
+      reliability,
       responseTimes: results.map(r => (r && r.success && r.responseTime > 0) ? r.responseTime : null),
       throughputs: results.map(r => (r && r.success && r.responseTime > 0)
         ? r.tokensGenerated / (r.responseTime / 1000) : null),
-      avgTime: times.length ? avg(times) : null,
+      avgTime: times.length ? avgTime : null,
       bestTime: times.length ? Math.min(...times) : null,
       avgTps: tpsArr.length ? avg(tpsArr) : null,
       wins: 0,
@@ -371,14 +406,18 @@ function renderOverview() {
     if (s.avgTime != null && s.avgTime < bestTimeVal) { bestTimeVal = s.avgTime; bestTimeModel = m; }
     if (s.avgTps != null && s.avgTps > bestTpsVal) { bestTpsVal = s.avgTps; bestTpsModel = m; }
   }
-  const mostReliable = [...modelNames].sort((a, b) => modelStats[b].uptime - modelStats[a].uptime)[0];
+  const mostReliable = [...modelNames].sort((a, b) => modelStats[b].reliability - modelStats[a].reliability)[0];
+
+  const dateRangeStr = totalRuns > 0
+    ? `${runs[0]?.timestamp?.slice(0, 10)} to ${runs[runs.length - 1]?.timestamp?.slice(0, 10)}`
+    : 'No runs';
 
   const kpiData = [
-    { icon: '🔁', label: 'Total Runs', val: totalRuns, sub: `${runs[0]?.timestamp?.slice(0,10)} → ${runs[runs.length-1]?.timestamp?.slice(0,10)}`, decimals: 0 },
+    { icon: '🔁', label: 'Total Runs', val: totalRuns, sub: totalRuns > 0 ? `${runs[0]?.timestamp?.slice(0,10)} → ${runs[runs.length-1]?.timestamp?.slice(0,10)}` : 'No runs recorded', decimals: 0 },
     { icon: '✅', label: 'Avg Success Rate', val: avgSuccessRate, suffix: '%', decimals: 1, sub: 'across all runs & models' },
-    { icon: '⚡', label: 'Avg Best Response', val: bestTimeVal / 1000, suffix: 's', decimals: 2, sub: bestTimeModel ? shortModel(bestTimeModel) : '' },
-    { icon: '🚀', label: 'Avg Best Throughput', val: bestTpsVal, suffix: ' t/s', decimals: 1, sub: bestTpsModel ? shortModel(bestTpsModel) : '' },
-    { icon: '🏅', label: 'Most Reliable', val: (modelStats[mostReliable]?.uptime || 0) * 100, suffix: '%', decimals: 1, sub: mostReliable ? shortModel(mostReliable) : '' },
+    { icon: '⚡', label: 'Avg Best Response', val: bestTimeModel ? bestTimeVal / 1000 : 0, suffix: 's', decimals: 2, sub: bestTimeModel ? shortModel(bestTimeModel) : '—' },
+    { icon: '🚀', label: 'Avg Best Throughput', val: bestTpsVal, suffix: ' t/s', decimals: 1, sub: bestTpsModel ? shortModel(bestTpsModel) : '—' },
+    { icon: '🏅', label: 'Most Reliable', val: mostReliable ? (modelStats[mostReliable]?.reliability || 0) : 0, suffix: '%', decimals: 0, sub: mostReliable ? shortModel(mostReliable) : '—' },
   ];
 
   const kpiGrid = document.getElementById('kpi-grid');
@@ -397,7 +436,9 @@ function renderOverview() {
   });
 
   document.getElementById('overview-sub').textContent =
-    `${totalRuns} benchmark runs · ${modelNames.length} models · ${runs[0]?.timestamp?.slice(0,10)} to ${runs[runs.length-1]?.timestamp?.slice(0,10)}`;
+    totalRuns > 0
+      ? `${totalRuns} benchmark runs · ${modelNames.length} models · ${dateRangeStr}`
+      : 'No runs recorded yet. Go to the Control Panel to start a benchmark!';
 
   // Charts
   const labels = runs.map(r => fmtTimestampShort(r.timestamp));
@@ -532,11 +573,11 @@ function renderOverview() {
 
   // Reliability pills
   const grid = document.getElementById('reliability-grid');
-  const sorted = [...modelNames].sort((a, b) => modelStats[b].uptime - modelStats[a].uptime);
+  const sorted = [...modelNames].sort((a, b) => modelStats[b].reliability - modelStats[a].reliability);
   grid.innerHTML = sorted.map(m => {
-    const u = modelStats[m].uptime;
-    const cls = u >= 0.7 ? 'green' : u >= 0.4 ? 'yellow' : 'red';
-    return `<div class="rel-pill ${cls}"><span class="dot"></span>${shortModel(m)} <span style="opacity:0.7">${(u*100).toFixed(0)}%</span></div>`;
+    const r = modelStats[m].reliability;
+    const cls = r >= 80 ? 'green' : r >= 50 ? 'yellow' : 'red';
+    return `<div class="rel-pill ${cls}"><span class="dot"></span>${shortModel(m)} <span style="opacity:0.7">${r}%</span></div>`;
   }).join('');
 }
 
@@ -726,7 +767,9 @@ function renderExplorer() {
 
   // Stats
   const uptimeColor = s.uptime >= 0.7 ? 'var(--success)' : s.uptime >= 0.4 ? 'var(--warning)' : 'var(--danger)';
+  const relColor = s.reliability >= 80 ? 'var(--success)' : s.reliability >= 50 ? 'var(--warning)' : 'var(--danger)';
   document.getElementById('explorer-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-val" style="color:${relColor}">${s.reliability}%</div><div class="stat-label">Reliability</div><div class="stat-sub">Index Score</div></div>
     <div class="stat-card"><div class="stat-val" style="color:${uptimeColor}">${(s.uptime*100).toFixed(1)}%</div><div class="stat-label">Uptime</div><div class="stat-sub">${s.successCount}/${s.totalRuns} runs</div></div>
     <div class="stat-card"><div class="stat-val">${s.avgTime ? (s.avgTime/1000).toFixed(2)+'s' : '—'}</div><div class="stat-label">Avg Response</div></div>
     <div class="stat-card"><div class="stat-val text-accent">${s.bestTime ? (s.bestTime/1000).toFixed(2)+'s' : '—'}</div><div class="stat-label">Best Response</div></div>
@@ -1110,7 +1153,12 @@ function switchTab(tabName) {
   if (tabName === 'timeline') renderTimeline();
   if (tabName === 'compare') renderCompare();
   if (tabName === 'categories') renderCategories();
-  if (tabName === 'control-panel') checkRunnerStatus();
+  if (tabName === 'control-panel') {
+    checkRunnerStatus().then(() => {
+      const logsEl = document.getElementById('runner-logs');
+      if (logsEl) logsEl.scrollTop = logsEl.scrollHeight;
+    });
+  }
 }
 
 // ─── Runner Control Panel Client ──────────────────────────────────────────────
@@ -1202,6 +1250,9 @@ function updateRunnerUI(data) {
     chkLoop.checked = !!data.loop_enabled;
   }
   
+  const stopBtn = document.getElementById('btn-stop-benchmark');
+  const resetBtn = document.getElementById('btn-reset-data');
+
   if (data.status === 'running') {
     if (btn) {
       btn.disabled = true;
@@ -1212,6 +1263,15 @@ function updateRunnerUI(data) {
     if (statusEl) {
       statusEl.textContent = 'Status: Benchmark In Progress...';
       statusEl.style.color = 'var(--warning)';
+    }
+    if (stopBtn) {
+      stopBtn.style.display = 'inline-flex';
+      stopBtn.disabled = false;
+    }
+    if (resetBtn) {
+      resetBtn.disabled = true;
+      resetBtn.style.opacity = '0.5';
+      resetBtn.style.cursor = 'not-allowed';
     }
   } else {
     if (btn) {
@@ -1231,6 +1291,14 @@ function updateRunnerUI(data) {
         statusEl.textContent = 'Status: Idle';
         statusEl.style.color = 'var(--text-dim)';
       }
+    }
+    if (stopBtn) {
+      stopBtn.style.display = 'none';
+    }
+    if (resetBtn) {
+      resetBtn.disabled = false;
+      resetBtn.style.opacity = '1';
+      resetBtn.style.cursor = 'pointer';
     }
   }
   
@@ -1276,6 +1344,72 @@ async function triggerBenchmark() {
   }
 }
 
+async function resetBenchmarkData() {
+  if (!confirm("⚠️ Are you sure you want to reset all data?\n\nThis will permanently delete your benchmark history, clear the banned models list, and reset the log files. This action cannot be undone.")) {
+    return;
+  }
+
+  const runBtn = document.getElementById('btn-run-benchmark');
+  const resetBtn = document.getElementById('btn-reset-data');
+
+  try {
+    if (runBtn) runBtn.disabled = true;
+    if (resetBtn) resetBtn.disabled = true;
+
+    const res = await fetch('/api/reset-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (res.status === 409) {
+      alert("Cannot reset data while a benchmark run is currently in progress!");
+      return;
+    }
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `Server returned HTTP ${res.status}`);
+    }
+
+    alert("Data reset successfully! The dashboard will now refresh to empty state.");
+    
+    // Refresh the data to reflect empty state
+    await loadDataAndRefresh();
+  } catch (err) {
+    alert("Failed to reset data: " + err.message);
+  } finally {
+    if (runBtn) runBtn.disabled = false;
+    if (resetBtn) resetBtn.disabled = false;
+    // Check status to restore UI state
+    await checkRunnerStatus();
+  }
+}
+
+async function stopBenchmark() {
+  const stopBtn = document.getElementById('btn-stop-benchmark');
+  try {
+    if (stopBtn) stopBtn.disabled = true;
+    const res = await fetch('/api/stop-benchmark', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `Server returned HTTP ${res.status}`);
+    }
+  } catch (err) {
+    alert("Failed to stop benchmark: " + err.message);
+  } finally {
+    if (stopBtn) stopBtn.disabled = false;
+    await checkRunnerStatus();
+  }
+}
+
 async function toggleLoopBenchmark(e) {
   const checked = e.target.checked;
   try {
@@ -1296,38 +1430,61 @@ async function toggleLoopBenchmark(e) {
 }
 
 async function loadDataAndRefresh() {
-  const res = await fetch('history.db?t=' + Date.now());
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const buf = await res.arrayBuffer();
-  state.db = new state.SQL.Database(new Uint8Array(buf));
+  let is404 = false;
+  let buf = null;
+  try {
+    const res = await fetch('history.db?t=' + Date.now());
+    if (!res.ok) {
+      if (res.status === 404) {
+        is404 = true;
+      } else {
+        throw new Error(`HTTP ${res.status}`);
+      }
+    } else {
+      buf = await res.arrayBuffer();
+    }
+  } catch (err) {
+    if (!is404) throw err;
+  }
+
   document.getElementById('error-state').style.display = 'none';
 
   await loadBannedModels();
   await loadCapabilities();
 
-  const data = loadFromDb(state.db);
-  const processed = processData(data);
+  if (is404) {
+    state.db = null;
+    state.modelNames = [];
+    state.hiddenModels = new Set();
+    state.runs = [];
+    state.modelStats = {};
+    document.getElementById('nav-status').textContent = '0 runs · 0/0 capable models';
+  } else {
+    state.db = new state.SQL.Database(new Uint8Array(buf));
+    const data = loadFromDb(state.db);
+    const processed = processData(data);
 
-  // Filter out banned + never-responded (no proven capability) models
-  const allNames = processed.modelNames;
-  state.bannedModels = new Set(
-    [...state.bannedModels].filter(m => allNames.includes(m))
-  );
-  state.modelNames = allNames.filter(m => {
-    if (state.bannedModels.has(m)) return false;
-    const s = processed.modelStats[m];
-    return s && s.successCount > 0;
-  });
-  state.hiddenModels = new Set(
-    allNames.filter(m => !state.modelNames.includes(m))
-  );
-  state.runs = processed.runs;
-  state.modelStats = {};
-  for (const m of state.modelNames) state.modelStats[m] = processed.modelStats[m];
+    // Filter out banned + never-responded (no proven capability) models
+    const allNames = processed.modelNames;
+    state.bannedModels = new Set(
+      [...state.bannedModels].filter(m => allNames.includes(m))
+    );
+    state.modelNames = allNames.filter(m => {
+      if (state.bannedModels.has(m)) return false;
+      const s = processed.modelStats[m];
+      return s && s.successCount > 0;
+    });
+    state.hiddenModels = new Set(
+      allNames.filter(m => !state.modelNames.includes(m))
+    );
+    state.runs = processed.runs;
+    state.modelStats = {};
+    for (const m of state.modelNames) state.modelStats[m] = processed.modelStats[m];
 
-  // Nav status
-  document.getElementById('nav-status').textContent =
-    `${state.runs.length} runs · ${state.modelNames.length}/${allNames.length} capable models`;
+    // Nav status
+    document.getElementById('nav-status').textContent =
+      `${state.runs.length} runs · ${state.modelNames.length}/${allNames.length} capable models`;
+  }
 
   // Populate selects without re-binding event handlers
   if (!state.modelNames.includes(state.explorerModel) && state.modelNames.length > 0) {
@@ -1400,6 +1557,16 @@ async function init() {
     const runBtn = document.getElementById('btn-run-benchmark');
     if (runBtn) {
       runBtn.addEventListener('click', triggerBenchmark);
+    }
+
+    const resetBtn = document.getElementById('btn-reset-data');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', resetBenchmarkData);
+    }
+
+    const stopBtn = document.getElementById('btn-stop-benchmark');
+    if (stopBtn) {
+      stopBtn.addEventListener('click', stopBenchmark);
     }
 
     const chkLoop = document.getElementById('chk-loop-benchmark');

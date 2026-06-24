@@ -13,6 +13,7 @@ loop_enabled = False
 log_buffer = []
 last_exit_code = None
 start_time = 0
+active_process = None
 
 class DashboardRequestHandler(SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -100,11 +101,76 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"error": f"Invalid request: {e}"}).encode('utf-8'))
             return
 
+        if self.path == '/api/reset-data':
+            with task_lock:
+                if is_running:
+                    self.send_response(409)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "Cannot reset data while benchmark is running."}).encode('utf-8'))
+                    return
+                
+                # Delete files
+                files_to_delete = [
+                    os.path.join("public", "history.db"),
+                    os.path.join("public", "data", "banned_models.txt"),
+                    os.path.join("public", "data", "current_key_idx.txt"),
+                    os.path.join("scripts", "results.json")
+                ]
+                deleted = []
+                errors = []
+                for f in files_to_delete:
+                    if os.path.exists(f):
+                        try:
+                            os.remove(f)
+                            deleted.append(f)
+                        except Exception as e:
+                            errors.append(f"{f}: {e}")
+                
+                log_buffer.clear()
+                log_buffer.append("[System] All historical and temporary benchmark data has been reset.\n")
+                
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                "message": "Data reset successfully.",
+                "deleted": deleted,
+                "errors": errors
+            }).encode('utf-8'))
+            return
+
+        if self.path == '/api/stop-benchmark':
+            with task_lock:
+                loop_enabled = False  # Always disable loop if stopping
+                if not is_running or not active_process:
+                    self.send_response(400)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": "No benchmark is currently running."}).encode('utf-8'))
+                    return
+                
+                try:
+                    active_process.terminate()
+                    append_log("\n[System] Stop signal sent by user. Terminating benchmark...\n")
+                except Exception as e:
+                    self.send_response(500)
+                    self.send_header('Content-Type', 'application/json')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": f"Failed to stop process: {e}"}).encode('utf-8'))
+                    return
+                
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"message": "Stop signal sent successfully."}).encode('utf-8'))
+            return
+
         self.send_response(404)
         self.end_headers()
 
 def run_benchmark_subprocess():
-    global is_running, log_buffer, last_exit_code, start_time
+    global is_running, log_buffer, last_exit_code, start_time, active_process
     
     while True:
         append_log("[System] Launching NVIDIA NIM Model Benchmarks...\n")
@@ -120,6 +186,8 @@ def run_benchmark_subprocess():
                 bufsize=1,
                 encoding='utf-8'
             )
+            with task_lock:
+                active_process = process
             
             # Read logs in real-time
             while True:
@@ -138,6 +206,9 @@ def run_benchmark_subprocess():
             with task_lock:
                 last_exit_code = -1
             append_log(f"\n[System Error] Failed to execute benchmark script: {e}\n")
+        finally:
+            with task_lock:
+                active_process = None
         
         # Mark running status as False so dashboard can detect run completion
         with task_lock:
