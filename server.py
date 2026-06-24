@@ -142,24 +142,27 @@ class DashboardRequestHandler(SimpleHTTPRequestHandler):
 
         if self.path == '/api/stop-benchmark':
             with task_lock:
-                loop_enabled = False  # Always disable loop if stopping
-                if not is_running or not active_process:
-                    self.send_response(400)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"error": "No benchmark is currently running."}).encode('utf-8'))
-                    return
-                
-                try:
-                    active_process.terminate()
-                    append_log("\n[System] Stop signal sent by user. Terminating benchmark...\n")
-                except Exception as e:
-                    self.send_response(500)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"error": f"Failed to stop process: {e}"}).encode('utf-8'))
-                    return
-                
+                loop_enabled = False
+                running = is_running
+                proc = active_process
+            
+            if not running or not proc:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": "No benchmark is currently running."}).encode('utf-8'))
+                return
+            
+            try:
+                proc.terminate()
+                append_log("\n[System] Stop signal sent by user. Terminating benchmark...\n")
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"error": f"Failed to stop process: {e}"}).encode('utf-8'))
+                return
+            
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()

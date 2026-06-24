@@ -5,7 +5,7 @@ import os
 import sys
 import time
 import threading
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -62,8 +62,11 @@ ALL_MODELS = [
 ]
 
 
-def load_banned_models() -> set[str]:
-    """Load set of permanently banned models."""
+ban_lock = threading.Lock()
+
+
+def _read_banned_set() -> set[str]:
+    """Read banned models from disk (caller must hold ban_lock)."""
     if BANNED_MODELS_FILE.exists():
         try:
             return {
@@ -76,13 +79,16 @@ def load_banned_models() -> set[str]:
     return set()
 
 
-ban_lock = threading.Lock()
+def load_banned_models() -> set[str]:
+    """Load set of permanently banned models (thread-safe)."""
+    with ban_lock:
+        return _read_banned_set()
 
 
 def ban_model(model: str) -> None:
     """Add a model to the permanent banned list."""
     with ban_lock:
-        banned = load_banned_models()
+        banned = _read_banned_set()
         if model not in banned:
             banned.add(model)
             try:
@@ -474,8 +480,7 @@ def main() -> int:
                 f"  ✓ Success {model} ({result['responseTime']}ms, {result.get('tokensGenerated', 0)} tokens){unreliable_str}"
             )
         else:
-            print(f"  ✗ Failed {model}: {result.get('error') or 'Unknown error'} — banned")
-            ban_model(model)
+            print(f"  ✗ Failed {model}: {result.get('error') or 'Unknown error'} — skipped (will retry next run)")
 
         return result
 
@@ -484,12 +489,14 @@ def main() -> int:
     print(f"Running benchmarks concurrently using {max_workers} worker threads...")
     
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = [
-            executor.submit(test_single_model, model, ((i + selected_key_idx) % len(available_keys)))
+        future_map = {
+            executor.submit(test_single_model, model, ((i + selected_key_idx) % len(available_keys))): i
             for i, model in enumerate(models)
-        ]
-        for fut in futures:
-            results.append(fut.result())
+        }
+        results = [None] * len(models)
+        for fut in as_completed(future_map):
+            idx = future_map[fut]
+            results[idx] = fut.result()
 
     print()
     print("Compiling results...")
