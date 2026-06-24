@@ -387,8 +387,9 @@ def update_history(new_run: dict[str, Any]) -> None:
 
 
 def main() -> int:
-    if not API_KEY:
-        print("Error: NIM_API_KEY environment variable not set", file=sys.stderr)
+    available_keys = get_available_keys()
+    if not available_keys:
+        print("Error: No NIM API keys available (e.g. NIM_API_KEY_1 to 5)", file=sys.stderr)
         return 1
 
     if os.getenv("FORCE_STATIC_MODELS") == "1":
@@ -404,11 +405,6 @@ def main() -> int:
     print(f"Timestamp: {timestamp}")
     print(f"Testing {len(models)} models...")
     print()
-
-    available_keys = get_available_keys()
-    if not available_keys:
-        print("Error: No NIM API keys available", file=sys.stderr)
-        return 1
 
     # Key rotation: use exactly one key per run of the script
     idx_file = SCRIPT_DIR.parent / "data" / "current_key_idx.txt"

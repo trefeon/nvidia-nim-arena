@@ -1,22 +1,22 @@
 :root {
-  --bg: #080810;
-  --bg-card: #0d0d1a;
-  --bg-card2: #121220;
-  --bg-hover: #181828;
-  --border: #1c1c2e;
-  --border-bright: #252538;
+  --bg: #040814;
+  --bg-card: #090e24;
+  --bg-card2: #101635;
+  --bg-hover: #162044;
+  --border: #151d3b;
+  --border-bright: #202b54;
   --accent: #76b900;
   --accent-dim: rgba(118, 185, 0, 0.12);
   --accent-glow: 0 0 20px rgba(118, 185, 0, 0.25);
   --blue: #00c8ff;
   --purple: #a855f7;
   --text: #e2e2f0;
-  --text-dim: #8888aa;
-  --text-muted: #3a3a5a;
-  --success: #22c55e;
-  --success-dim: rgba(34, 197, 94, 0.1);
-  --danger: #ef4444;
-  --danger-dim: rgba(239, 68, 68, 0.1);
+  --text-dim: #8892b5;
+  --text-muted: #3a426f;
+  --success: #7fe089;
+  --success-dim: rgba(127, 224, 137, 0.1);
+  --danger: #f97d7d;
+  --danger-dim: rgba(249, 125, 125, 0.1);
   --warning: #f59e0b;
   --radius: 12px;
   --radius-sm: 8px;
@@ -1259,4 +1259,37 @@ td {
   text-align: center;
   padding: 32px;
   font-style: italic;
+}
+
+/* Custom primary button inspired by Midnight Banking and CoinPulse */
+.btn-primary {
+  background: var(--accent);
+  color: #040814;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(118, 185, 0, 0.25);
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s, opacity 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+}
+.btn-primary:hover {
+  background: #87d300;
+  box-shadow: 0 6px 20px rgba(118, 185, 0, 0.4);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(1px);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }

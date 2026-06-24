@@ -693,13 +693,16 @@ function renderCategories() {
 function populateExplorerSelect() {
   const sel = document.getElementById('explorer-select');
   const sorted = [...state.modelNames].sort((a,b) => state.modelStats[b].score - state.modelStats[a].score);
+  const prevValue = sel.value || state.explorerModel;
   sel.innerHTML = sorted.map(m =>
-    `<option value="${m}"${m === state.explorerModel ? ' selected' : ''}>${shortModel(m)} (${providerMeta(m).name})</option>`
+    `<option value="${m}">${shortModel(m)} (${providerMeta(m).name})</option>`
   ).join('');
-  sel.addEventListener('change', e => {
-    state.explorerModel = e.target.value;
-    renderExplorer();
-  });
+  if (sorted.includes(prevValue)) {
+    sel.value = prevValue;
+  } else if (sorted.length > 0) {
+    sel.value = sorted[0];
+    state.explorerModel = sorted[0];
+  }
 }
 
 function renderExplorer() {
@@ -913,23 +916,24 @@ function populateCompareSelects() {
 
   const selA = document.getElementById('compare-a');
   const selB = document.getElementById('compare-b');
+  const valA = selA.value;
+  const valB = selB.value;
+
   selA.innerHTML = opts;
   selB.innerHTML = opts;
 
   const defaultA = 'qwen/qwen3-coder-480b-a35b-instruct';
   const defaultB = 'nvidia/nemotron-3-super-120b-a12b';
-  selA.value = state.modelNames.includes(defaultA) ? defaultA : sorted[0];
-  selB.value = state.modelNames.includes(defaultB) ? defaultB : sorted[1];
-
-  selA.addEventListener('change', renderCompare);
-  selB.addEventListener('change', renderCompare);
-
-  document.getElementById('swap-btn').addEventListener('click', () => {
-    const tmp = selA.value;
-    selA.value = selB.value;
-    selB.value = tmp;
-    renderCompare();
-  });
+  if (state.modelNames.includes(valA)) {
+    selA.value = valA;
+  } else {
+    selA.value = state.modelNames.includes(defaultA) ? defaultA : sorted[0] || '';
+  }
+  if (state.modelNames.includes(valB)) {
+    selB.value = valB;
+  } else {
+    selB.value = state.modelNames.includes(defaultB) ? defaultB : sorted[1] || '';
+  }
 }
 
 function renderCompare() {
@@ -1106,6 +1110,210 @@ function switchTab(tabName) {
   if (tabName === 'timeline') renderTimeline();
   if (tabName === 'compare') renderCompare();
   if (tabName === 'categories') renderCategories();
+  if (tabName === 'control-panel') checkRunnerStatus();
+}
+
+// ─── Runner Control Panel Client ──────────────────────────────────────────────
+let isPollingRunner = false;
+let runnerPollTimer = null;
+let lastRunnerStatus = null;
+
+async function checkRunnerStatus() {
+  try {
+    const res = await fetch('/api/task-status');
+    if (!res.ok) {
+      hideRunnerTab();
+      return;
+    }
+    const data = await res.json();
+    
+    // Server is detected! Show the runner tab.
+    showRunnerTab();
+    
+    // Update the runner UI
+    updateRunnerUI(data);
+    
+    // If status is running, ensure we poll quickly (1.5s)
+    if (data.status === 'running') {
+      startPollingRunner(1500);
+    } else {
+      // If we transitioned from running to idle, refresh the database!
+      if (lastRunnerStatus === 'running' && data.status === 'idle') {
+        console.log("Benchmark run finished! Reloading data...");
+        try {
+          await loadDataAndRefresh();
+        } catch (e) {
+          console.error("Failed to reload database after benchmark run:", e);
+        }
+      }
+      // If idle, poll slowly (5.0s)
+      startPollingRunner(5000);
+    }
+    
+    lastRunnerStatus = data.status;
+  } catch (err) {
+    // If the server doesn't respond (e.g. served statically)
+    hideRunnerTab();
+    stopPollingRunner();
+  }
+}
+
+function showRunnerTab() {
+  const tabBtn = document.getElementById('nav-control-panel');
+  if (tabBtn) {
+    tabBtn.style.display = 'block';
+  }
+}
+
+function hideRunnerTab() {
+  const tabBtn = document.getElementById('nav-control-panel');
+  if (tabBtn) {
+    tabBtn.style.display = 'none';
+  }
+}
+
+function startPollingRunner(ms) {
+  // If timer is already running with a same interval, do nothing
+  if (runnerPollTimer) {
+    if (runnerPollTimer.interval === ms) return;
+    clearInterval(runnerPollTimer.id);
+  }
+  runnerPollTimer = {
+    interval: ms,
+    id: setInterval(checkRunnerStatus, ms)
+  };
+}
+
+function stopPollingRunner() {
+  if (runnerPollTimer) {
+    clearInterval(runnerPollTimer.id);
+    runnerPollTimer = null;
+  }
+}
+
+function updateRunnerUI(data) {
+  const btn = document.getElementById('btn-run-benchmark');
+  const statusEl = document.getElementById('runner-status');
+  const timerEl = document.getElementById('runner-timer');
+  const logsEl = document.getElementById('runner-logs');
+  
+  if (data.status === 'running') {
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner" style="display:inline-block;width:12px;height:12px;border-width:2px;margin:0 6px 0 0;vertical-align:middle"></span> Running...`;
+      btn.style.opacity = '0.6';
+      btn.style.cursor = 'not-allowed';
+    }
+    if (statusEl) {
+      statusEl.textContent = 'Status: Benchmark In Progress...';
+      statusEl.style.color = 'var(--warning)';
+    }
+  } else {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `⚡ Run Benchmark`;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }
+    if (statusEl) {
+      if (data.exit_code === 0) {
+        statusEl.textContent = 'Status: Idle (Last run: Success)';
+        statusEl.style.color = 'var(--success)';
+      } else if (data.exit_code != null) {
+        statusEl.textContent = `Status: Idle (Last run failed, code: ${data.exit_code})`;
+        statusEl.style.color = 'var(--danger)';
+      } else {
+        statusEl.textContent = 'Status: Idle';
+        statusEl.style.color = 'var(--text-dim)';
+      }
+    }
+  }
+  
+  if (timerEl) {
+    timerEl.textContent = `Duration: ${data.duration_seconds}s`;
+  }
+  
+  if (logsEl && data.logs) {
+    const shouldScroll = logsEl.scrollHeight - logsEl.clientHeight <= logsEl.scrollTop + 100;
+    logsEl.textContent = data.logs;
+    if (shouldScroll) {
+      logsEl.scrollTop = logsEl.scrollHeight;
+    }
+  }
+}
+
+async function triggerBenchmark() {
+  try {
+    const btn = document.getElementById('btn-run-benchmark');
+    if (btn) {
+      btn.disabled = true;
+    }
+    const res = await fetch('/api/run-benchmark', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (res.status === 409) {
+      alert("Benchmark is already running!");
+      return;
+    }
+    
+    if (!res.ok) {
+      throw new Error(`Server returned HTTP ${res.status}`);
+    }
+    
+    // Start polling immediately
+    await checkRunnerStatus();
+  } catch (err) {
+    alert("Failed to start benchmark: " + err.message);
+  }
+}
+
+async function loadDataAndRefresh() {
+  const res = await fetch('history.db?t=' + Date.now());
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const buf = await res.arrayBuffer();
+  state.db = new state.SQL.Database(new Uint8Array(buf));
+
+  await loadBannedModels();
+  await loadCapabilities();
+
+  const data = loadFromDb(state.db);
+  const processed = processData(data);
+
+  // Filter out banned + never-responded (no proven capability) models
+  const allNames = processed.modelNames;
+  state.bannedModels = new Set(
+    [...state.bannedModels].filter(m => allNames.includes(m))
+  );
+  state.modelNames = allNames.filter(m => {
+    if (state.bannedModels.has(m)) return false;
+    const s = processed.modelStats[m];
+    return s && s.successCount > 0;
+  });
+  state.hiddenModels = new Set(
+    allNames.filter(m => !state.modelNames.includes(m))
+  );
+  state.runs = processed.runs;
+  state.modelStats = {};
+  for (const m of state.modelNames) state.modelStats[m] = processed.modelStats[m];
+
+  // Nav status
+  document.getElementById('nav-status').textContent =
+    `${state.runs.length} runs · ${state.modelNames.length}/${allNames.length} capable models`;
+
+  // Populate selects without re-binding event handlers
+  if (!state.modelNames.includes(state.explorerModel) && state.modelNames.length > 0) {
+    const sorted = [...state.modelNames].sort((a,b) => state.modelStats[b].score - state.modelStats[a].score);
+    state.explorerModel = sorted[0];
+  }
+  populateExplorerSelect();
+  populateCompareSelects();
+
+  // Refresh current tab
+  switchTab(state.currentTab);
 }
 
 // ─── Initialization ───────────────────────────────────────────────────────────
@@ -1114,49 +1322,28 @@ async function init() {
     const SQL = await initSqlJs({
       locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`
     });
+    state.SQL = SQL;
 
-    const res = await fetch('history.db');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const buf = await res.arrayBuffer();
-    state.db = new SQL.Database(new Uint8Array(buf));
-
-    await loadBannedModels();
-    await loadCapabilities();
-
-    const data = loadFromDb(state.db);
-    const processed = processData(data);
-
-    // Filter out banned + never-responded (no proven capability) models
-    const allNames = processed.modelNames;
-    state.bannedModels = new Set(
-      [...state.bannedModels].filter(m => allNames.includes(m))
-    );
-    state.modelNames = allNames.filter(m => {
-      if (state.bannedModels.has(m)) return false;
-      const s = processed.modelStats[m];
-      return s && s.successCount > 0;
-    });
-    state.hiddenModels = new Set(
-      allNames.filter(m => !state.modelNames.includes(m))
-    );
-    state.runs = processed.runs;
-    state.modelStats = {};
-    for (const m of state.modelNames) state.modelStats[m] = processed.modelStats[m];
-
-    // Nav status
-    document.getElementById('nav-status').textContent =
-      `${state.runs.length} runs · ${state.modelNames.length}/${allNames.length} capable models`;
-
-    // Populate selects
-    if (!state.modelNames.includes(state.explorerModel) && state.modelNames.length > 0) {
-      const sorted = [...state.modelNames].sort((a,b) => state.modelStats[b].score - state.modelStats[a].score);
-      state.explorerModel = sorted[0];
-    }
-    populateExplorerSelect();
-    populateCompareSelects();
+    await loadDataAndRefresh();
 
     // Init leaderboard sort
     initLeaderboardSort();
+
+    // Select change listeners bound once
+    document.getElementById('explorer-select').addEventListener('change', e => {
+      state.explorerModel = e.target.value;
+      renderExplorer();
+    });
+    document.getElementById('compare-a').addEventListener('change', renderCompare);
+    document.getElementById('compare-b').addEventListener('change', renderCompare);
+    document.getElementById('swap-btn').addEventListener('click', () => {
+      const selA = document.getElementById('compare-a');
+      const selB = document.getElementById('compare-b');
+      const tmp = selA.value;
+      selA.value = selB.value;
+      selB.value = tmp;
+      renderCompare();
+    });
 
     // Timeline filters
     document.querySelectorAll('.filter-btn[data-filter]').forEach(btn => {
@@ -1184,8 +1371,14 @@ async function init() {
       });
     });
 
-    // Initial render
-    renderOverview();
+    // Runner trigger
+    const runBtn = document.getElementById('btn-run-benchmark');
+    if (runBtn) {
+      runBtn.addEventListener('click', triggerBenchmark);
+    }
+
+    // Initial check on runner API server status
+    await checkRunnerStatus();
 
     // Show app
     document.getElementById('loading').style.display = 'none';

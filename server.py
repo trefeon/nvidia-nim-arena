@@ -138,7 +138,7 @@ def main():
     })
     
     httpd = HTTPServer(server_address, DashboardRequestHandler)
-    print(f"🚀 NIM Arena Local API & Web Server running on http://localhost:{port}/")
+    print(f"[*] NIM Arena Local API & Web Server running on http://localhost:{port}/")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
