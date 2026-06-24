@@ -36,7 +36,7 @@ PROMPT = "Write a Python function that checks if a number is prime and returns T
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 OUTPUT_FILE = SCRIPT_DIR / "results.json"
-BANNED_MODELS_FILE = SCRIPT_DIR.parent / "data" / "banned_models.txt"
+BANNED_MODELS_FILE = SCRIPT_DIR.parent / "public" / "data" / "banned_models.txt"
 
 ALL_MODELS = [
     "deepseek-ai/deepseek-v4-flash",
@@ -407,7 +407,7 @@ def main() -> int:
     print()
 
     # Key rotation: use exactly one key per run of the script
-    idx_file = SCRIPT_DIR.parent / "data" / "current_key_idx.txt"
+    idx_file = SCRIPT_DIR.parent / "public" / "data" / "current_key_idx.txt"
     current_idx = 0
     if idx_file.exists():
         try:

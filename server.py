@@ -137,7 +137,7 @@ def main():
         '.css': 'text/css',
     })
     
-    httpd = HTTPServer(server_address, DashboardRequestHandler)
+    httpd = HTTPServer(server_address, lambda *args, **kwargs: DashboardRequestHandler(*args, directory="public", **kwargs))
     print(f"[*] NIM Arena Local API & Web Server running on http://localhost:{port}/")
     try:
         httpd.serve_forever()
