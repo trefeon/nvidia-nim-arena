@@ -1,0 +1,6 @@
+google/gemma-4-31b-it
+meta/llama-3.2-1b-instruct
+minimaxai/minimax-m2.7
+nvidia/llama-3.1-nemotron-nano-8b-v1
+nvidia/nemotron-3-ultra-550b-a55b
+z-ai/glm-5.1

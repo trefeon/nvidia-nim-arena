@@ -1534,7 +1534,7 @@ async function loadDataAndRefresh() {
 async function init() {
   try {
     const SQL = await initSqlJs({
-      locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`
+      locateFile: file => `/${file}`
     });
     state.SQL = SQL;
 
